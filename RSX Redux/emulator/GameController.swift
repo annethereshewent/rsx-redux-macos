@@ -8,22 +8,6 @@
 import Foundation
 import GameController
 import PSXMacEmulator
-/*
- // (Button::Back, 0),
- // (Button::LeftStick, 1),
- // (Button::RightStick, 2),
- // (Button::Start, 3),
- // (Button::DPadUp, 4),
- // (Button::DPadRight, 5),
- // (Button::DPadDown, 6),
- // (Button::DPadLeft, 7),
- // (Button::LeftShoulder, 10),
- // (Button::RightShoulder, 11),
- // (Button::Y, 12),
- // (Button::B, 13),
- // (Button::A, 14),
- // (Button::X, 15)
- */
 
 enum PressedButton: UInt {
     case circle = 13

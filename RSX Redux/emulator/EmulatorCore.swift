@@ -37,6 +37,23 @@ class EmulatorCore: ObservableObject {
 
     }
 
+    func setMemoryCard() {
+        var url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("RSX Redux", isDirectory: true)
+
+        do {
+            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+            url = url.appendingPathComponent("memory_card.mcd")
+
+            if !FileManager.default.fileExists(atPath: url.path) {
+                FileManager.default.createFile(atPath: url.path, contents: Data(), attributes: nil)
+            }
+
+            emulator?.setMemoryCard(url.path)
+        } catch {
+            print(error)
+        }
+    }
+
     func shutdown() {
         guard initialized else { return }
         layer = nil
@@ -49,6 +66,8 @@ class EmulatorCore: ObservableObject {
                 defer {
                     gameUrl.stopAccessingSecurityScopedResource()
                 }
+
+                setMemoryCard()
 
                 let gamePath = gameUrl.path
                 emulator.loadRom(gamePath)

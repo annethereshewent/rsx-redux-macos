@@ -86,10 +86,10 @@ struct ContentView: View {
         controller.leftShoulder.pressedChangedHandler = { (button, value, pressed) in
             updateInput(.l1, pressed)
         }
-        controller.rightShoulder.pressedChangedHandler = { (button, value, pressed) in
+        controller.rightTrigger.pressedChangedHandler = { (button, value, pressed) in
             updateInput(.r2, pressed)
         }
-        controller.leftShoulder.pressedChangedHandler = { (button, value, pressed) in
+        controller.leftTrigger.pressedChangedHandler = { (button, value, pressed) in
             updateInput(.l2, pressed)
         }
         controller.leftThumbstick.valueChangedHandler = { dpad, xValue, yValue in
