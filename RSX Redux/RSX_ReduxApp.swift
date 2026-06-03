@@ -7,31 +7,108 @@
 
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
+
+enum FileType {
+    case disc
+    case bios
+}
 
 @main
 struct RSX_ReduxApp: App {
     @StateObject private var emulatorCore = EmulatorCore()
+    @State private var showDialog = false
+    @State private var currentDiscUrl: URL?
+    @State private var currentBiosUrl: URL?
+    @State private var fileType: FileType?
 
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+    let binType = UTType(filenameExtension: "bin", conformingTo: .data)
+
+    func storeBios(location: URL, data: Data) -> URL? {
+        let appPath = location.appendingPathComponent("RSX Redux", isDirectory: true)
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            try FileManager.default.createDirectory(at: appPath, withIntermediateDirectories: true, attributes: nil)
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            print(error.localizedDescription);
         }
-    }()
+
+        if let url = URL(string: "bios.bin", relativeTo: appPath) {
+            try! data.write(to: url)
+
+            return url
+        }
+
+        return nil
+    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(
+                currentDiscUrl: $currentDiscUrl,
+                currentBiosUrl: $currentBiosUrl
+            )
                 .environmentObject(emulatorCore)
-                .onAppear { emulatorCore.initialize() }
+                .onAppear {
+                    emulatorCore.initialize()
+
+                    if var location = try? FileManager.default.url(
+                        for: .applicationSupportDirectory,
+                        in: .userDomainMask,
+                        appropriateFor: nil,
+                        create: true
+                    ) {
+                        location.appendPathComponent("RSX Redux", isDirectory: true)
+
+                        if let biosUrl = URL(string: "bios.bin", relativeTo: location) {
+                            emulatorCore.loadBios(biosUrl: biosUrl)
+                        }
+                    }
+                }
+                .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!] ) { result in
+                    if let url = try? result.get() {
+                        switch fileType {
+                        case .bios:
+                            if let location = try? FileManager.default.url(
+                                for: .applicationSupportDirectory,
+                                in: .userDomainMask,
+                                appropriateFor: nil,
+                                create: true
+                            ) {
+                                if url.startAccessingSecurityScopedResource() {
+                                    defer { url.stopAccessingSecurityScopedResource() }
+                                    if let data = try? Data(contentsOf: url) {
+                                        currentBiosUrl = storeBios(location: location, data: data)
+                                    }
+                                }
+
+                            }
+                            break
+                        case .disc:
+                            currentDiscUrl = url
+                            break
+                        default:
+                            print("Error! neither disc or bios file type selected!")
+                            break
+                        }
+                    }
+                }
         }
-        .modelContainer(sharedModelContainer)
+        .commands {
+            CommandGroup(after: .newItem) {
+                Button("Open disc") {
+                    showDialog = true
+                    fileType = .disc
+                }
+                .disabled(!emulatorCore.biosLoaded)
+            }
+            CommandGroup(after: .newItem) {
+                Button("Load bios") {
+                    showDialog = true
+                    fileType = .bios
+                }
+            }
+        }
 
         Settings {
             SettingsView()

@@ -14,11 +14,7 @@ struct EmulatorView: NSViewRepresentable {
     func makeNSView(context: Context) -> EmulatorNSView {
         let view = EmulatorNSView()
         view.wantsLayer = true
-
-        // attach the existing layer — no init here
-        if let metalLayer = core.layer {
-            view.layer = metalLayer
-        }
+        view.layer = core.layer
 
         DispatchQueue.main.async {
             view.window?.makeFirstResponder(view)

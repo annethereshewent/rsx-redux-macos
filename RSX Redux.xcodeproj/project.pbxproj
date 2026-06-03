@@ -10,6 +10,10 @@
 		E887F4F02FCFBA810046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F4EF2FCFBA810046E8C5 /* PSXMacEmulator */; };
 		E887F4F32FCFBAF30046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F4F22FCFBAF30046E8C5 /* PSXMacEmulator */; };
 		E887F5142FCFCC7C0046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F5132FCFCC7C0046E8C5 /* PSXMacEmulator */; };
+		E887F51B2FCFD49D0046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F51A2FCFD49D0046E8C5 /* PSXMacEmulator */; };
+		E887F51E2FCFEBB60046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F51D2FCFEBB60046E8C5 /* PSXMacEmulator */; };
+		E887F5212FCFF0170046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F5202FCFF0170046E8C5 /* PSXMacEmulator */; };
+		E887F5242FCFF18C0046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F5232FCFF18C0046E8C5 /* PSXMacEmulator */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +36,10 @@
 				E887F4F02FCFBA810046E8C5 /* PSXMacEmulator in Frameworks */,
 				E887F4F32FCFBAF30046E8C5 /* PSXMacEmulator in Frameworks */,
 				E887F5142FCFCC7C0046E8C5 /* PSXMacEmulator in Frameworks */,
+				E887F5242FCFF18C0046E8C5 /* PSXMacEmulator in Frameworks */,
+				E887F51E2FCFEBB60046E8C5 /* PSXMacEmulator in Frameworks */,
+				E887F51B2FCFD49D0046E8C5 /* PSXMacEmulator in Frameworks */,
+				E887F5212FCFF0170046E8C5 /* PSXMacEmulator in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +86,10 @@
 				E887F4EF2FCFBA810046E8C5 /* PSXMacEmulator */,
 				E887F4F22FCFBAF30046E8C5 /* PSXMacEmulator */,
 				E887F5132FCFCC7C0046E8C5 /* PSXMacEmulator */,
+				E887F51A2FCFD49D0046E8C5 /* PSXMacEmulator */,
+				E887F51D2FCFEBB60046E8C5 /* PSXMacEmulator */,
+				E887F5202FCFF0170046E8C5 /* PSXMacEmulator */,
+				E887F5232FCFF18C0046E8C5 /* PSXMacEmulator */,
 			);
 			productName = "RSX Redux";
 			productReference = E887F4D72FCEDBDF0046E8C5 /* RSX Redux.app */;
@@ -108,7 +120,7 @@
 			mainGroup = E887F4CE2FCEDBDF0046E8C5;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				E887F5122FCFCC7C0046E8C5 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */,
+				E887F5222FCFF18C0046E8C5 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E887F4D82FCEDBDF0046E8C5 /* Products */;
@@ -373,7 +385,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		E887F5122FCFCC7C0046E8C5 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */ = {
+		E887F5222FCFF18C0046E8C5 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../../rust-projects/rsx-redux/macos/PSXMacEmulator";
 		};
@@ -389,6 +401,22 @@
 			productName = PSXMacEmulator;
 		};
 		E887F5132FCFCC7C0046E8C5 /* PSXMacEmulator */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PSXMacEmulator;
+		};
+		E887F51A2FCFD49D0046E8C5 /* PSXMacEmulator */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PSXMacEmulator;
+		};
+		E887F51D2FCFEBB60046E8C5 /* PSXMacEmulator */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PSXMacEmulator;
+		};
+		E887F5202FCFF0170046E8C5 /* PSXMacEmulator */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PSXMacEmulator;
+		};
+		E887F5232FCFF18C0046E8C5 /* PSXMacEmulator */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PSXMacEmulator;
 		};

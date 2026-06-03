@@ -10,8 +10,10 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
     @EnvironmentObject private var emulatorCore: EmulatorCore
+
+    @Binding var currentDiscUrl: URL?
+    @Binding var currentBiosUrl: URL?
 
     var body: some View {
         EmulatorView()
@@ -21,10 +23,15 @@ struct ContentView: View {
             .onAppear {
 
             }
+            .onChange(of: currentDiscUrl) {
+                if let url = currentDiscUrl {
+                    emulatorCore.startEmulator(gameUrl: url)
+                }
+            }
+            .onChange(of: currentBiosUrl) {
+                if let url = currentBiosUrl {
+                    emulatorCore.loadBios(biosUrl: url)
+                }
+            }
     }
-}
-
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
