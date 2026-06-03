@@ -22,6 +22,7 @@ struct RSX_ReduxApp: App {
     @State private var currentBiosUrl: URL?
     @State private var fileType: FileType?
     @State private var initialize = false
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     let binType = UTType(filenameExtension: "bin", conformingTo: .data)
 
@@ -105,15 +106,16 @@ struct RSX_ReduxApp: App {
         }
         .commands {
             CommandGroup(after: .newItem) {
-                Button("New game") {
+                Button("New Game") {
                     initialize = true
                     showDialog = true
                     fileType = .disc
                 }
+                .keyboardShortcut("o", modifiers: [.command])
                 .disabled(!emulatorCore.biosLoaded)
             }
             CommandGroup(after: .newItem) {
-                Button("Load disc (for current game)") {
+                Button("Load Disc (for current game)") {
                     initialize = false
                     showDialog = true
                     fileType = .disc
@@ -121,7 +123,7 @@ struct RSX_ReduxApp: App {
                 .disabled(!emulatorCore.isRunning)
             }
             CommandGroup(after: .newItem) {
-                Button("Load bios") {
+                Button("Load Bios") {
                     showDialog = true
                     fileType = .bios
                 }
@@ -131,5 +133,11 @@ struct RSX_ReduxApp: App {
         Settings {
             SettingsView()
         }
+    }
+}
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        true
     }
 }

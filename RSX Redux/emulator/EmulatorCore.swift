@@ -16,6 +16,7 @@ class EmulatorCore: ObservableObject {
     @Published var isRunning = false
     @Published var biosLoaded = false
     private let emuQueue = DispatchQueue(label: "rsx-redux.emu", qos: .userInteractive)
+    private let audioManager = AudioManager()
 
     func initialize() {
         if !initialized {
@@ -53,11 +54,17 @@ class EmulatorCore: ObservableObject {
                 let gamePath = gameUrl.path
                 emulator.loadRom(gamePath)
 
+                audioManager.startAudio()
+
                 isRunning = true
                 emuQueue.async { [weak self] in
                     guard let self else { return }
                     while self.isRunning {
                         emulator.stepFrame()
+
+                        let samples = emulator.drainSamples()
+
+                        self.audioManager.updateBuffer(samples: samples)
                     }
                 }
             }

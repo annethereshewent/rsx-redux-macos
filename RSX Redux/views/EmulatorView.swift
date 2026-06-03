@@ -48,8 +48,4 @@ class EmulatorNSView: NSView {
     override func keyUp(with event: NSEvent) {
         // forward to Rust
     }
-
-    override func performKeyEquivalent(with event: NSEvent) -> Bool {
-        return true
-    }
 }
