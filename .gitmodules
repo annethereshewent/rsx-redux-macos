@@ -1,0 +1,3 @@
+[submodule "external/rsx-redux"]
+	path = external/rsx-redux
+	url = git@github.com:annethereshewent/rsx-redux.git

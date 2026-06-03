@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E887F4F02FCFBA810046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F4EF2FCFBA810046E8C5 /* PSXMacEmulator */; };
+		E887F4F32FCFBAF30046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F4F22FCFBAF30046E8C5 /* PSXMacEmulator */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		E887F4D72FCEDBDF0046E8C5 /* RSX Redux.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RSX Redux.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +28,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E887F4F02FCFBA810046E8C5 /* PSXMacEmulator in Frameworks */,
+				E887F4F32FCFBAF30046E8C5 /* PSXMacEmulator in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,6 +62,7 @@
 				E887F4D32FCEDBDF0046E8C5 /* Sources */,
 				E887F4D42FCEDBDF0046E8C5 /* Frameworks */,
 				E887F4D52FCEDBDF0046E8C5 /* Resources */,
+				E887F50F2FCFC7930046E8C5 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -65,6 +73,8 @@
 			);
 			name = "RSX Redux";
 			packageProductDependencies = (
+				E887F4EF2FCFBA810046E8C5 /* PSXMacEmulator */,
+				E887F4F22FCFBAF30046E8C5 /* PSXMacEmulator */,
 			);
 			productName = "RSX Redux";
 			productReference = E887F4D72FCEDBDF0046E8C5 /* RSX Redux.app */;
@@ -94,6 +104,9 @@
 			);
 			mainGroup = E887F4CE2FCEDBDF0046E8C5;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E887F4F12FCFBAF30046E8C5 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E887F4D82FCEDBDF0046E8C5 /* Products */;
 			projectDirPath = "";
@@ -113,6 +126,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E887F50F2FCFC7930046E8C5 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncp external/rsx-redux/desktop/shaders/Shaders.metal \"${SRCROOT}/RSX Redux/shaders/Shaders.metal\"\ncp external/rsx-redux/desktop/shaders/ShadersFb.metal \"${SRCROOT}/RSX Redux/shaders/ShadersFb.metal\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E887F4D32FCEDBDF0046E8C5 /* Sources */ = {
@@ -186,6 +219,7 @@
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -242,6 +276,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -331,6 +366,24 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		E887F4F12FCFBAF30046E8C5 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../rust-projects/rsx-redux/macos/PSXMacEmulator";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E887F4EF2FCFBA810046E8C5 /* PSXMacEmulator */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PSXMacEmulator;
+		};
+		E887F4F22FCFBAF30046E8C5 /* PSXMacEmulator */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PSXMacEmulator;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E887F4CF2FCEDBDF0046E8C5 /* Project object */;
 }

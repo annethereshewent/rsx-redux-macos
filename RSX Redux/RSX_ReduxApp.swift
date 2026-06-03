@@ -10,6 +10,8 @@ import SwiftData
 
 @main
 struct RSX_ReduxApp: App {
+    @StateObject private var emulatorCore = EmulatorCore()
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -26,7 +28,13 @@ struct RSX_ReduxApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(emulatorCore)
+                .onAppear { emulatorCore.initialize() }
         }
         .modelContainer(sharedModelContainer)
+
+        Settings {
+            SettingsView()
+        }
     }
 }
