@@ -21,6 +21,7 @@ struct RSX_ReduxApp: App {
     @State private var currentDiscUrl: URL?
     @State private var currentBiosUrl: URL?
     @State private var fileType: FileType?
+    @State private var initialize = false
 
     let binType = UTType(filenameExtension: "bin", conformingTo: .data)
 
@@ -61,6 +62,7 @@ struct RSX_ReduxApp: App {
                         location.appendPathComponent("RSX Redux", isDirectory: true)
 
                         if let biosUrl = URL(string: "bios.bin", relativeTo: location) {
+                            currentBiosUrl = biosUrl
                             emulatorCore.loadBios(biosUrl: biosUrl)
                         }
                     }
@@ -85,6 +87,13 @@ struct RSX_ReduxApp: App {
                             }
                             break
                         case .disc:
+                            if emulatorCore.isRunning && initialize {
+                                if let biosUrl = currentBiosUrl {
+                                    emulatorCore.isRunning = false
+                                    emulatorCore.initialize()
+                                    emulatorCore.loadBios(biosUrl: biosUrl)
+                                }
+                            }
                             currentDiscUrl = url
                             break
                         default:
@@ -96,11 +105,20 @@ struct RSX_ReduxApp: App {
         }
         .commands {
             CommandGroup(after: .newItem) {
-                Button("Open disc") {
+                Button("New game") {
+                    initialize = true
                     showDialog = true
                     fileType = .disc
                 }
                 .disabled(!emulatorCore.biosLoaded)
+            }
+            CommandGroup(after: .newItem) {
+                Button("Load disc (for current game)") {
+                    initialize = false
+                    showDialog = true
+                    fileType = .disc
+                }
+                .disabled(!emulatorCore.isRunning)
             }
             CommandGroup(after: .newItem) {
                 Button("Load bios") {

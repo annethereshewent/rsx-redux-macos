@@ -32,6 +32,13 @@ struct EmulatorView: NSViewRepresentable {
 }
 
 class EmulatorNSView: NSView {
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+
+        guard let window else { return }
+
+        window.setContentSize(NSSize(width: 1280, height: 960))
+    }
     override var acceptsFirstResponder: Bool { true }
 
     override func keyDown(with event: NSEvent) {

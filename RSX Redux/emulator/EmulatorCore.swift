@@ -18,19 +18,22 @@ class EmulatorCore: ObservableObject {
     private let emuQueue = DispatchQueue(label: "rsx-redux.emu", qos: .userInteractive)
 
     func initialize() {
-        guard !initialized else { return }
-        initialized = true
+        if !initialized {
+            initialized = true
 
-        let metalLayer = CAMetalLayer()
-        metalLayer.device = MTLCreateSystemDefaultDevice()
-        metalLayer.pixelFormat = .bgra8Unorm
-        metalLayer.framebufferOnly = true
+            let metalLayer = CAMetalLayer()
+            metalLayer.device = MTLCreateSystemDefaultDevice()
+            metalLayer.pixelFormat = .bgra8Unorm
+            metalLayer.framebufferOnly = true
 
-        let ptr = Unmanaged.passUnretained(metalLayer).toOpaque()
+            self.layer = metalLayer
+        }
+
+        let ptr = Unmanaged.passUnretained(layer!).toOpaque()
 
         emulator = PsxMacEmulator(ptr)
 
-        self.layer = metalLayer
+
     }
 
     func shutdown() {
@@ -49,8 +52,6 @@ class EmulatorCore: ObservableObject {
 
                 let gamePath = gameUrl.path
                 emulator.loadRom(gamePath)
-
-                guard !isRunning else { return }
 
                 isRunning = true
                 emuQueue.async { [weak self] in
