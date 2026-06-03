@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		E887F4F02FCFBA810046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F4EF2FCFBA810046E8C5 /* PSXMacEmulator */; };
 		E887F4F32FCFBAF30046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F4F22FCFBAF30046E8C5 /* PSXMacEmulator */; };
+		E887F5142FCFCC7C0046E8C5 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E887F5132FCFCC7C0046E8C5 /* PSXMacEmulator */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 			files = (
 				E887F4F02FCFBA810046E8C5 /* PSXMacEmulator in Frameworks */,
 				E887F4F32FCFBAF30046E8C5 /* PSXMacEmulator in Frameworks */,
+				E887F5142FCFCC7C0046E8C5 /* PSXMacEmulator in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +77,7 @@
 			packageProductDependencies = (
 				E887F4EF2FCFBA810046E8C5 /* PSXMacEmulator */,
 				E887F4F22FCFBAF30046E8C5 /* PSXMacEmulator */,
+				E887F5132FCFCC7C0046E8C5 /* PSXMacEmulator */,
 			);
 			productName = "RSX Redux";
 			productReference = E887F4D72FCEDBDF0046E8C5 /* RSX Redux.app */;
@@ -105,7 +108,7 @@
 			mainGroup = E887F4CE2FCEDBDF0046E8C5;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				E887F4F12FCFBAF30046E8C5 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */,
+				E887F5122FCFCC7C0046E8C5 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E887F4D82FCEDBDF0046E8C5 /* Products */;
@@ -143,7 +146,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncp external/rsx-redux/desktop/shaders/Shaders.metal \"${SRCROOT}/RSX Redux/shaders/Shaders.metal\"\ncp external/rsx-redux/desktop/shaders/ShadersFb.metal \"${SRCROOT}/RSX Redux/shaders/ShadersFb.metal\"\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncp \"${SRCROOT}/external/rsx-redux/desktop/shaders/Shaders.metal\" \"${SRCROOT}/RSX Redux/shaders/Shaders.metal\"\ncp \"${SRCROOT}/external/rsx-redux/desktop/shaders/ShadersFb.metal\" \"${SRCROOT}/RSX Redux/shaders/ShadersFb.metal\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -292,6 +295,7 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -324,6 +328,7 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -368,7 +373,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		E887F4F12FCFBAF30046E8C5 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */ = {
+		E887F5122FCFCC7C0046E8C5 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../../rust-projects/rsx-redux/macos/PSXMacEmulator";
 		};
@@ -380,6 +385,10 @@
 			productName = PSXMacEmulator;
 		};
 		E887F4F22FCFBAF30046E8C5 /* PSXMacEmulator */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PSXMacEmulator;
+		};
+		E887F5132FCFCC7C0046E8C5 /* PSXMacEmulator */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PSXMacEmulator;
 		};
