@@ -44,7 +44,6 @@ class EmulatorCore: ObservableObject {
     }
 
     func startEmulator(gameUrl: URL) {
-
         if let emulator = emulator {
             if gameUrl.startAccessingSecurityScopedResource() {
                 defer {
@@ -72,15 +71,29 @@ class EmulatorCore: ObservableObject {
     }
 
     func stepFrame() {
-        emulator!.stepFrame()
+        emulator?.stepFrame()
     }
 
     func loadBios(biosUrl: URL) {
-        if let emulator = emulator {
-            let biosPath = biosUrl.path
+        let biosPath = biosUrl.path
 
-            emulator.loadBios(biosPath)
-            biosLoaded = true
-        }
+        emulator?.loadBios(biosPath)
+        biosLoaded = true
+    }
+
+    func toggleDigitalMode() {
+        emulator?.toggleDigitalMode()
+    }
+
+    func updateInput(_ button: PressedButton, _ pressed: Bool) {
+        emulator?.updateInput(button.rawValue, pressed)
+    }
+
+    func setLeftThumbstick(_ normalizedX: UInt8, _ normalizedY: UInt8) {
+        emulator?.setLeftThumbstick(normalizedX, normalizedY)
+    }
+
+    func setRightThumbstick(_ normalizedX: UInt8, _ normalizedY: UInt8) {
+        emulator?.setRightThumbstick(normalizedX, normalizedY)
     }
 }
