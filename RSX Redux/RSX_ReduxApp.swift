@@ -23,6 +23,7 @@ struct RSX_ReduxApp: App {
     @State private var fileType: FileType?
     @State private var initialize = false
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @Environment(\.openWindow) private var openWindow
 
     let binType = UTType(filenameExtension: "bin", conformingTo: .data)
 
@@ -48,7 +49,7 @@ struct RSX_ReduxApp: App {
         WindowGroup {
             ContentView(
                 currentDiscUrl: $currentDiscUrl,
-                currentBiosUrl: $currentBiosUrl
+                currentBiosUrl: $currentBiosUrl,
             )
                 .environmentObject(emulatorCore)
                 .onAppear {
@@ -128,6 +129,18 @@ struct RSX_ReduxApp: App {
                     fileType = .bios
                 }
             }
+            CommandGroup(after: .toolbar) {
+                Button("Waveform Visualizer") {
+                    openWindow(id: "waveform")
+                }
+                .keyboardShortcut(KeyEquivalent("4"), modifiers: [.command])
+            }
+        }
+
+        Window("Waveform Visualizer", id: "waveform") {
+            StereoWaveformView(model: emulatorCore.waveFormModel)
+                .frame(minWidth: 600, minHeight: 240)
+                .environmentObject(emulatorCore)
         }
 
         Settings {

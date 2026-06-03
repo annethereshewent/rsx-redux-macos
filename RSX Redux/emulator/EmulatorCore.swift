@@ -17,6 +17,7 @@ class EmulatorCore: ObservableObject {
     @Published var biosLoaded = false
     private let emuQueue = DispatchQueue(label: "rsx-redux.emu", qos: .userInteractive)
     private let audioManager = AudioManager()
+    var waveFormModel = WaveformModel()
 
     func initialize() {
         if !initialized {
@@ -82,6 +83,7 @@ class EmulatorCore: ObservableObject {
 
                         let samples = emulator.drainSamples()
 
+                        waveFormModel.push(samples: Array(samples))
                         self.audioManager.updateBuffer(samples: samples)
                     }
                 }
