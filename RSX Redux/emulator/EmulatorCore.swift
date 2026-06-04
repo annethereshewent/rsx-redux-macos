@@ -204,7 +204,7 @@ class EmulatorCore: ObservableObject {
 
             let stateVec = emulator.saveState()
 
-            if var saveState = saveState {
+            if let saveState = saveState {
                 saveState.saveData = Data(Array(stateVec))
                 saveState.timestamp = Int(date.timeIntervalSince1970)
                 saveState.screenshot = Data(screenshotArr)

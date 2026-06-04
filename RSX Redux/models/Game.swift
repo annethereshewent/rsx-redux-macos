@@ -12,16 +12,16 @@ import SwiftData
 class Game {
     @Attribute(.unique)
     var gameName: String
-    var gameUrl: URL
+    var bookmark: Data
     @Relationship(deleteRule: .cascade, inverse: \SaveState.game)
     var saveStates: [SaveState]?
     var lastPlayed: Date
 
-    init(gameName: String, saveStates: [SaveState], lastPlayed: Date, gameUrl: URL) {
+    init(gameName: String, bookmark: Data, saveStates: [SaveState], lastPlayed: Date) {
         self.gameName = gameName
         self.lastPlayed = lastPlayed
         self.saveStates = saveStates
-        self.gameUrl = gameUrl
+        self.bookmark = bookmark
     }
 
 }

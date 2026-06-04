@@ -221,22 +221,34 @@ struct ContentView: View {
                                 emulatorCore.loadBios(biosUrl: biosUrl)
                             }
                         }
-                        currentDiscUrl = url
 
                         let gameName = url.deletingPathExtension().lastPathComponent
 
                         if let index = games.firstIndex(where: { $0.gameName == gameName }) {
                             currentGame = games[index]
                         } else {
-                            currentGame = Game(
-                                gameName: gameName,
-                                saveStates: [],
-                                lastPlayed: Date(),
-                                gameUrl: url
-                            )
+                            do {
+                                guard url.startAccessingSecurityScopedResource() else { return }
 
-                            context.insert(currentGame!)
+                                let bookmark = try url.bookmarkData(
+                                    options: [.withSecurityScope],
+                                    includingResourceValuesForKeys: nil,
+                                    relativeTo: nil
+                                )
+
+                                currentGame = Game(
+                                    gameName: gameName,
+                                    bookmark: bookmark,
+                                    saveStates: [],
+                                    lastPlayed: Date()
+                                )
+
+                                context.insert(currentGame!)
+                            } catch {
+                                print(error)
+                            }
                         }
+                        currentDiscUrl = url
                         break
                     default: break
                     }

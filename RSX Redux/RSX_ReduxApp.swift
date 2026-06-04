@@ -51,8 +51,10 @@ struct RSX_ReduxApp: App {
                         location.appendPathComponent("RSX Redux", isDirectory: true)
 
                         if let biosUrl = URL(string: "bios.bin", relativeTo: location) {
-                            currentBiosUrl = biosUrl
-                            emulatorCore.loadBios(biosUrl: biosUrl)
+                            if FileManager.default.fileExists(atPath: biosUrl.path) {
+                                currentBiosUrl = biosUrl
+                                emulatorCore.loadBios(biosUrl: biosUrl)
+                            }
                         }
                     }
                 }

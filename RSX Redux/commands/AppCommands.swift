@@ -27,10 +27,24 @@ struct AppCommands: Commands {
                 ForEach(games, id: \.gameName) { game in
                     Button(game.gameName) {
                         if let biosUrl = currentBiosUrl {
-                            emulatorCore.isRunning = false
-                            emulatorCore.initialize()
-                            emulatorCore.loadBios(biosUrl: biosUrl)
-                            emulatorCore.startEmulator(gameUrl: game.gameUrl)
+                            var stale = false
+                            do {
+                                let url = try URL(
+                                    resolvingBookmarkData: game.bookmark,
+                                    options: [.withSecurityScope],
+                                    relativeTo: nil,
+                                    bookmarkDataIsStale: &stale
+                                )
+
+                                currentGame = game
+
+                                emulatorCore.isRunning = false
+                                emulatorCore.initialize()
+                                emulatorCore.loadBios(biosUrl: biosUrl)
+                                emulatorCore.startEmulator(gameUrl: url)
+                            } catch {
+                                print(error)
+                            }
                         }
                     }
                 }
