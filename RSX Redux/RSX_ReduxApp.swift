@@ -22,8 +22,10 @@ struct RSX_ReduxApp: App {
     @State private var currentBiosUrl: URL?
     @State private var fileType: FileType?
     @State private var initialize = false
+    @State private var showWaveform = false
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
 
     let binType = UTType(filenameExtension: "bin", conformingTo: .data)
 
@@ -131,8 +133,14 @@ struct RSX_ReduxApp: App {
             }
             CommandGroup(after: .toolbar) {
                 Button("Waveform Visualizer") {
-                    openWindow(id: "waveform")
+                    showWaveform.toggle()
+                    if showWaveform {
+                        openWindow(id: "waveform")
+                    } else {
+                        dismissWindow(id: "waveform")
+                    }
                 }
+
                 .keyboardShortcut(KeyEquivalent("4"), modifiers: [.command])
             }
         }
