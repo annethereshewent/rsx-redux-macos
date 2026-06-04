@@ -26,7 +26,6 @@ enum PressedButton: UInt {
     case down = 6
     case left = 7
     case right = 5
-    case digitalMode = 16
 }
 
 @Observable

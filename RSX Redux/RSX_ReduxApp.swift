@@ -131,17 +131,25 @@ struct RSX_ReduxApp: App {
                     fileType = .bios
                 }
             }
+            CommandGroup(after: .newItem) {
+                Button("Load State") {
+                    
+                }
+            }
+            CommandGroup(after: .newItem) {
+                Button("Save State") {
+
+                }
+            }
             CommandGroup(after: .toolbar) {
                 Button("Waveform Visualizer") {
-                    showWaveform.toggle()
-                    if showWaveform {
+                    emulatorCore.showWaveForm.toggle()
+                    if emulatorCore.showWaveForm {
                         openWindow(id: "waveform")
                     } else {
                         dismissWindow(id: "waveform")
                     }
                 }
-
-                .keyboardShortcut(KeyEquivalent("4"), modifiers: [.command])
             }
         }
 

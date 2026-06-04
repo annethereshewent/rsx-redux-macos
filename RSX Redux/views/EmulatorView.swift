@@ -30,7 +30,11 @@ let KEY_ENTER: UInt = 36
 let LEFT_SHIFT: UInt = 131330
 let RIGHT_SHIFT: UInt = 131332
 
-let FLAG_UP = 256
+let FLAG_UP: UInt = 256
+
+let KEY_F4: UInt = 118
+let KEY_F5: UInt = 96
+let KEY_F7: UInt = 98
 
 struct EmulatorView: NSViewRepresentable {
     @EnvironmentObject var core: EmulatorCore
@@ -89,6 +93,7 @@ class EmulatorNSView: NSView {
     override var acceptsFirstResponder: Bool { true }
 
     override func keyDown(with event: NSEvent) {
+        print(event.keyCode)
         if let button = keyDict[UInt(event.keyCode)] {
             emulatorCore?.updateInput(button, true)
         }
@@ -98,6 +103,12 @@ class EmulatorNSView: NSView {
     override func keyUp(with event: NSEvent) {
         if let button = keyDict[UInt(event.keyCode)] {
             emulatorCore?.updateInput(button, false)
+        } else if event.keyCode == KEY_F4 {
+            emulatorCore?.showWaveForm.toggle()
+        } else if event.keyCode == KEY_F5 {
+            emulatorCore?.saveQuickState()
+        } else if event.keyCode == KEY_F7 {
+            emulatorCore?.loadQuickState()
         }
     }
 

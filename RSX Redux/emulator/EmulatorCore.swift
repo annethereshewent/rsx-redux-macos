@@ -15,6 +15,7 @@ class EmulatorCore: ObservableObject {
     private var emulator: PsxMacEmulator?
     @Published var isRunning = false
     @Published var biosLoaded = false
+    @Published var showWaveForm = false
     private let emuQueue = DispatchQueue(label: "rsx-redux.emu", qos: .userInteractive)
     private let audioManager = AudioManager()
     var waveFormModel = WaveformModel()
@@ -116,5 +117,13 @@ class EmulatorCore: ObservableObject {
 
     func setRightThumbstick(_ normalizedX: UInt8, _ normalizedY: UInt8) {
         emulator?.setRightThumbstick(normalizedX, normalizedY)
+    }
+
+    func loadQuickState() {
+
+    }
+
+    func saveQuickState() {
+        
     }
 }
