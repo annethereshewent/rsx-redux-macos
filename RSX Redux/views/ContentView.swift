@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import GameController
+import UniformTypeIdentifiers
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -15,12 +16,22 @@ struct ContentView: View {
 
     @Binding var currentDiscUrl: URL?
     @Binding var currentBiosUrl: URL?
+    @Binding var initialize: Bool
+    @Binding var currentGame: Game?
+    @Binding var showDialog: Bool
+    @Binding var fileType: FileType?
     @State private var gameController: GameController?
     @State private var touchpadLatch = false
 
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
+    @Query private var games: [Game]
+    @Environment(\.modelContext) private var context
+
+    let binType = UTType(filenameExtension: "bin", conformingTo: .data)
+
     private func addControllerEventListeners(_ controller: GCController?) {
         if let controller = controller?.extendedGamepad as? GCDualSenseGamepad {
-            print("dual sense detected")
             handleExtendedGamepadInput(controller as GCExtendedGamepad)
             handleDsenseGamepadInput(controller)
         } else if let controller = controller?.extendedGamepad as? GCDualShockGamepad {
@@ -147,6 +158,24 @@ struct ContentView: View {
         emulatorCore.updateInput(button, pressed)
     }
 
+    func storeBios(location: URL, data: Data) -> URL? {
+        let appPath = location.appendingPathComponent("RSX Redux", isDirectory: true)
+
+        do {
+            try FileManager.default.createDirectory(at: appPath, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            print(error.localizedDescription);
+        }
+
+        if let url = URL(string: "bios.bin", relativeTo: appPath) {
+            try! data.write(to: url)
+
+            return url
+        }
+
+        return nil
+    }
+
     var body: some View {
         EmulatorView()
             .aspectRatio(4/3, contentMode: .fit)
@@ -163,6 +192,54 @@ struct ContentView: View {
             .onChange(of: currentBiosUrl) {
                 if let url = currentBiosUrl {
                     emulatorCore.loadBios(biosUrl: url)
+                }
+            }
+            .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!] ) { result in
+                if let url = try? result.get() {
+                    switch fileType {
+                    case .bios:
+                        if let location = try? FileManager.default.url(
+                            for: .applicationSupportDirectory,
+                            in: .userDomainMask,
+                            appropriateFor: nil,
+                            create: true
+                        ) {
+                            if url.startAccessingSecurityScopedResource() {
+                                defer { url.stopAccessingSecurityScopedResource() }
+                                if let data = try? Data(contentsOf: url) {
+                                    currentBiosUrl = storeBios(location: location, data: data)
+                                }
+                            }
+
+                        }
+                        break
+                    case .disc:
+                        if emulatorCore.isRunning && initialize {
+                            if let biosUrl = currentBiosUrl {
+                                emulatorCore.isRunning = false
+                                emulatorCore.initialize()
+                                emulatorCore.loadBios(biosUrl: biosUrl)
+                            }
+                        }
+                        currentDiscUrl = url
+
+                        let gameName = url.deletingPathExtension().lastPathComponent
+
+                        if let index = games.firstIndex(where: { $0.gameName == gameName }) {
+                            currentGame = games[index]
+                        } else {
+                            currentGame = Game(
+                                gameName: gameName,
+                                saveStates: [],
+                                lastPlayed: Date(),
+                                gameUrl: url
+                            )
+
+                            context.insert(currentGame!)
+                        }
+                        break
+                    default: break
+                    }
                 }
             }
     }

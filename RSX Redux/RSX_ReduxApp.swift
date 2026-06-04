@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import UniformTypeIdentifiers
 
 enum FileType {
     case disc
@@ -23,35 +22,21 @@ struct RSX_ReduxApp: App {
     @State private var fileType: FileType?
     @State private var initialize = false
     @State private var showWaveform = false
+    @State private var currentGame: Game?
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
-
-    let binType = UTType(filenameExtension: "bin", conformingTo: .data)
-
-    func storeBios(location: URL, data: Data) -> URL? {
-        let appPath = location.appendingPathComponent("RSX Redux", isDirectory: true)
-
-        do {
-            try FileManager.default.createDirectory(at: appPath, withIntermediateDirectories: true, attributes: nil)
-        } catch {
-            print(error.localizedDescription);
-        }
-
-        if let url = URL(string: "bios.bin", relativeTo: appPath) {
-            try! data.write(to: url)
-
-            return url
-        }
-
-        return nil
-    }
 
     var body: some Scene {
         WindowGroup {
             ContentView(
                 currentDiscUrl: $currentDiscUrl,
                 currentBiosUrl: $currentBiosUrl,
+                initialize: $initialize,
+                currentGame: $currentGame,
+                showDialog: $showDialog,
+                fileType: $fileType
             )
                 .environmentObject(emulatorCore)
                 .onAppear {
@@ -71,41 +56,6 @@ struct RSX_ReduxApp: App {
                         }
                     }
                 }
-                .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!] ) { result in
-                    if let url = try? result.get() {
-                        switch fileType {
-                        case .bios:
-                            if let location = try? FileManager.default.url(
-                                for: .applicationSupportDirectory,
-                                in: .userDomainMask,
-                                appropriateFor: nil,
-                                create: true
-                            ) {
-                                if url.startAccessingSecurityScopedResource() {
-                                    defer { url.stopAccessingSecurityScopedResource() }
-                                    if let data = try? Data(contentsOf: url) {
-                                        currentBiosUrl = storeBios(location: location, data: data)
-                                    }
-                                }
-
-                            }
-                            break
-                        case .disc:
-                            if emulatorCore.isRunning && initialize {
-                                if let biosUrl = currentBiosUrl {
-                                    emulatorCore.isRunning = false
-                                    emulatorCore.initialize()
-                                    emulatorCore.loadBios(biosUrl: biosUrl)
-                                }
-                            }
-                            currentDiscUrl = url
-                            break
-                        default:
-                            print("Error! neither disc or bios file type selected!")
-                            break
-                        }
-                    }
-                }
                 .onChange(of: emulatorCore.showWaveForm) {
                     if emulatorCore.showWaveForm {
                         openWindow(id: "waveform")
@@ -115,45 +65,16 @@ struct RSX_ReduxApp: App {
                 }
         }
         .commands {
-            CommandGroup(after: .newItem) {
-                Button("New Game") {
-                    initialize = true
-                    showDialog = true
-                    fileType = .disc
-                }
-                .keyboardShortcut("o", modifiers: [.command])
-                .disabled(!emulatorCore.biosLoaded)
-            }
-            CommandGroup(after: .newItem) {
-                Button("Load Disc (for current game)") {
-                    initialize = false
-                    showDialog = true
-                    fileType = .disc
-                }
-                .disabled(!emulatorCore.isRunning)
-            }
-            CommandGroup(after: .newItem) {
-                Button("Load Bios") {
-                    showDialog = true
-                    fileType = .bios
-                }
-            }
-            CommandGroup(after: .newItem) {
-                Button("Load State") {
-                    
-                }
-            }
-            CommandGroup(after: .newItem) {
-                Button("Save State") {
-
-                }
-            }
-            CommandGroup(after: .toolbar) {
-                Button("Waveform Visualizer") {
-                    emulatorCore.showWaveForm.toggle()
-                }
-            }
+            AppCommands(
+                emulatorCore: emulatorCore,
+                currentBiosUrl: $currentBiosUrl,
+                currentGame: $currentGame,
+                initialize: $initialize,
+                showDialog: $showDialog,
+                fileType: $fileType
+            )
         }
+        .modelContainer(for: [Game.self, SaveState.self])
 
 
         Window("Waveform Visualizer", id: "waveform") {
@@ -161,11 +82,17 @@ struct RSX_ReduxApp: App {
                 .frame(minWidth: 600, minHeight: 240)
                 .environmentObject(emulatorCore)
         }
+        Window("Save States", id: "save_states") {
+            SaveStateView(currentGame: $currentGame)
+                .environmentObject(emulatorCore)
+        }
+        .modelContainer(for: [Game.self, SaveState.self])
 
         Settings {
             SettingsView()
         }
     }
+
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {

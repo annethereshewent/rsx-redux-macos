@@ -38,8 +38,6 @@ class EmulatorCore: ObservableObject {
         let ptr = Unmanaged.passUnretained(layer!).toOpaque()
 
         emulator = PsxMacEmulator(ptr)
-
-
     }
 
     func setMemoryCard() {
@@ -141,7 +139,7 @@ class EmulatorCore: ObservableObject {
                     isRunning = false
 
                     Array(data).withUnsafeBufferPointer { ptr in
-                        emulator?.loadQuickState(ptr)
+                        emulator?.loadState(ptr)
 
                         mainLoop()
                     }
@@ -149,6 +147,16 @@ class EmulatorCore: ObservableObject {
                     print(error)
                 }
             }
+        }
+    }
+
+    func loadState(data: Data) {
+        isRunning = false
+
+        Array(data).withUnsafeBufferPointer { ptr in
+            emulator?.loadState(ptr)
+
+            mainLoop()
         }
     }
 
@@ -164,7 +172,7 @@ class EmulatorCore: ObservableObject {
     }
 
     func saveQuickState() {
-        if let dataVec = emulator?.saveQuickState() {
+        if let dataVec = emulator?.saveState() {
             let data = Data(Array(dataVec))
 
             var url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("RSX Redux", isDirectory: true)
@@ -183,5 +191,38 @@ class EmulatorCore: ObservableObject {
                 }
             }
         }
+    }
+
+    func saveState(saveState: SaveState?, saveNumber: Int?) -> SaveState? {
+        // saveName: String, screenshot: [UInt8], bookmark: Data, timestamp: Int
+        if let emulator = emulator {
+            let date = Date()
+
+            let screenshot = emulator.getScreenshot()
+
+            let screenshotArr = Array(screenshot)
+
+            let stateVec = emulator.saveState()
+
+            if var saveState = saveState {
+                saveState.saveData = Data(Array(stateVec))
+                saveState.timestamp = Int(date.timeIntervalSince1970)
+                saveState.screenshot = Data(screenshotArr)
+
+                return saveState
+            } else if let saveNumber = saveNumber {
+                let saveName = "Save State \(saveNumber)"
+                let saveState = SaveState(
+                    saveName: saveName,
+                    screenshot: screenshotArr,
+                    saveData: Data(Array(stateVec)),
+                    timestamp: Int(date.timeIntervalSince1970)
+                )
+
+                return saveState
+            }
+        }
+
+        return nil
     }
 }
