@@ -93,7 +93,6 @@ class EmulatorNSView: NSView {
     override var acceptsFirstResponder: Bool { true }
 
     override func keyDown(with event: NSEvent) {
-        print(event.keyCode)
         if let button = keyDict[UInt(event.keyCode)] {
             emulatorCore?.updateInput(button, true)
         }

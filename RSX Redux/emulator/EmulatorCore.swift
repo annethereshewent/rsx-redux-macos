@@ -20,6 +20,9 @@ class EmulatorCore: ObservableObject {
     private let audioManager = AudioManager()
     var waveFormModel = WaveformModel()
 
+    private var gameUrl: URL?
+    private var saveStateUrl: URL?
+
     func initialize() {
         if !initialized {
             initialized = true
@@ -72,21 +75,28 @@ class EmulatorCore: ObservableObject {
                 setMemoryCard()
 
                 let gamePath = gameUrl.path
+                self.gameUrl = gameUrl
                 emulator.loadRom(gamePath)
 
                 audioManager.startAudio()
 
-                isRunning = true
-                emuQueue.async { [weak self] in
-                    guard let self else { return }
-                    while self.isRunning {
-                        emulator.stepFrame()
+                mainLoop()
+            }
+        }
+    }
 
-                        let samples = emulator.drainSamples()
+    func mainLoop() {
+        if let emulator = emulator {
+            isRunning = true
+            emuQueue.async { [weak self] in
+                guard let self else { return }
+                while self.isRunning {
+                    emulator.stepFrame()
 
-                        waveFormModel.push(samples: Array(samples))
-                        self.audioManager.updateBuffer(samples: samples)
-                    }
+                    let samples = emulator.drainSamples()
+
+                    waveFormModel.push(samples: Array(samples))
+                    self.audioManager.updateBuffer(samples: samples)
                 }
             }
         }
@@ -120,10 +130,58 @@ class EmulatorCore: ObservableObject {
     }
 
     func loadQuickState() {
+        if let url = saveStateUrl ?? getQuickStateUrl() {
+            if gameUrl?.startAccessingSecurityScopedResource() ?? false {
+                defer {
+                    gameUrl?.stopAccessingSecurityScopedResource()
+                }
+                do {
+                    let data = try Data(contentsOf: url)
 
+                    isRunning = false
+
+                    Array(data).withUnsafeBufferPointer { ptr in
+                        emulator?.loadQuickState(ptr)
+
+                        mainLoop()
+                    }
+                } catch {
+                    print(error)
+                }
+            }
+        }
+    }
+
+    func getQuickStateUrl() -> URL? {
+        var url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("RSX Redux", isDirectory: true)
+        if let saveStateDir = gameUrl?.deletingPathExtension().lastPathComponent {
+            url = url.appendingPathComponent(saveStateDir, isDirectory: true).appendingPathComponent("quick_save.state")
+
+            return url
+        }
+
+        return nil
     }
 
     func saveQuickState() {
-        
+        if let dataVec = emulator?.saveQuickState() {
+            let data = Data(Array(dataVec))
+
+            var url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("RSX Redux", isDirectory: true)
+            if let saveStateDir = gameUrl?.deletingPathExtension().lastPathComponent {
+                url = url.appendingPathComponent(saveStateDir, isDirectory: true)
+
+                do {
+                    try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+                    url = url.appendingPathComponent("quick_save.state")
+
+                    try data.write(to: url)
+
+                    saveStateUrl = url
+                } catch {
+                    print(error)
+                }
+            }
+        }
     }
 }

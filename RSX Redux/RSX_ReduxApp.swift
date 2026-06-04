@@ -106,6 +106,13 @@ struct RSX_ReduxApp: App {
                         }
                     }
                 }
+                .onChange(of: emulatorCore.showWaveForm) {
+                    if emulatorCore.showWaveForm {
+                        openWindow(id: "waveform")
+                    } else {
+                        dismissWindow(id: "waveform")
+                    }
+                }
         }
         .commands {
             CommandGroup(after: .newItem) {
@@ -144,14 +151,10 @@ struct RSX_ReduxApp: App {
             CommandGroup(after: .toolbar) {
                 Button("Waveform Visualizer") {
                     emulatorCore.showWaveForm.toggle()
-                    if emulatorCore.showWaveForm {
-                        openWindow(id: "waveform")
-                    } else {
-                        dismissWindow(id: "waveform")
-                    }
                 }
             }
         }
+
 
         Window("Waveform Visualizer", id: "waveform") {
             StereoWaveformView(model: emulatorCore.waveFormModel)
