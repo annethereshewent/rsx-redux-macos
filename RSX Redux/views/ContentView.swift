@@ -183,15 +183,17 @@ struct ContentView: View {
             .background(.black)
             .onChange(of: currentDiscUrl) {
                 if let url = currentDiscUrl {
-                    gameController = GameController() { controller in
-                        addControllerEventListeners(controller)
-                    }
                     emulatorCore.startEmulator(gameUrl: url)
                 }
             }
             .onChange(of: currentBiosUrl) {
                 if let url = currentBiosUrl {
                     emulatorCore.loadBios(biosUrl: url)
+                }
+            }
+            .onAppear() {
+                gameController = GameController() { controller in
+                    addControllerEventListeners(controller)
                 }
             }
             .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!] ) { result in
