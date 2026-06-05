@@ -28,6 +28,7 @@ struct SaveStateView: View {
                         VStack {
                             Image(nsImage: nsImage)
                                 .resizable()
+                                .aspectRatio(contentMode: .fit)
                                 .frame(width: 160, height: 120)
                             Text(saveState.saveName)
                         }
