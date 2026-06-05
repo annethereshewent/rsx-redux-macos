@@ -21,7 +21,6 @@ struct RSX_ReduxApp: App {
     @State private var currentBiosUrl: URL?
     @State private var fileType: FileType?
     @State private var initialize = false
-    @State private var showWaveform = false
     @State private var currentGame: Game?
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
@@ -83,6 +82,9 @@ struct RSX_ReduxApp: App {
             StereoWaveformView(model: emulatorCore.waveFormModel)
                 .frame(minWidth: 600, minHeight: 240)
                 .environmentObject(emulatorCore)
+                .onDisappear {
+                    emulatorCore.showWaveForm = false
+                }
         }
         Window("Save States", id: "save_states") {
             SaveStateView(currentGame: $currentGame)
