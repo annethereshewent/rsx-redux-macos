@@ -164,7 +164,7 @@ struct ContentView: View {
         do {
             try FileManager.default.createDirectory(at: appPath, withIntermediateDirectories: true, attributes: nil)
         } catch {
-            print(error.localizedDescription);
+            print(error)
         }
 
         if let url = URL(string: "bios.bin", relativeTo: appPath) {

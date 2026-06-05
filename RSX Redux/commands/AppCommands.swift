@@ -87,14 +87,30 @@ struct AppCommands: Commands {
                 let saveStates = currentGame?.saveStates ?? []
                 ForEach(saveStates.sorted(by: { $0.saveName < $1.saveName }), id: \.saveName) { saveState in
                     Button(saveState.saveName) {
-                        if let saveState = emulatorCore.saveState(saveState: saveState, saveNumber: nil) {
+                        if let stateInfo = emulatorCore.saveState() {
+                            saveState.timestamp = Int(Date().timeIntervalSince1970)
+                            saveState.saveData = stateInfo.saveData
+                            saveState.screenshot = stateInfo.screenshot
+                            saveState.imageWidth = stateInfo.width
+                            saveState.imageHeight = stateInfo.height
+
                             context.insert(saveState)
                         }
                     }
                 }
                 Button("Create New State") {
-                    if let newState = emulatorCore.saveState(saveState: nil, saveNumber: saveStates.count + 1) {
-                        context.insert(newState)
+                    if let stateInfo = emulatorCore.saveState() {
+                        let saveName = "Save State \(currentGame!.saveStates!.count + 1)"
+                        let saveState = SaveState(
+                            saveName: saveName,
+                            screenshot: stateInfo.screenshot,
+                            imageWidth: stateInfo.width,
+                            imageHeight: stateInfo.height,
+                            saveData: stateInfo.saveData,
+                            timestamp: Int(Date().timeIntervalSince1970)
+                        )
+                        currentGame!.saveStates?.append(saveState)
+                        context.insert(saveState)
                     }
                 }
 

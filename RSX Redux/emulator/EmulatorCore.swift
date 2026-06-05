@@ -9,6 +9,20 @@ import MetalKit
 import PSXMacEmulator
 import Combine
 
+class StateInfo {
+    var saveData: Data
+    var screenshot: Data
+    var width: UInt32
+    var height: UInt32
+
+    init(_ saveData: Data, _ screenshot: Data, _ width: UInt32, _ height: UInt32) {
+        self.saveData = saveData
+        self.screenshot = screenshot
+        self.width = width
+        self.height = height
+    }
+}
+
 class EmulatorCore: ObservableObject {
     @Published private(set) var layer: CAMetalLayer?
     private var initialized = false
@@ -151,13 +165,19 @@ class EmulatorCore: ObservableObject {
     }
 
     func loadState(data: Data) {
-        isRunning = false
+        if gameUrl?.startAccessingSecurityScopedResource() ?? false {
+            defer {
+                gameUrl?.stopAccessingSecurityScopedResource()
+            }
+            isRunning = false
 
-        Array(data).withUnsafeBufferPointer { ptr in
-            emulator?.loadState(ptr)
+            Array(data).withUnsafeBufferPointer { ptr in
+                emulator?.loadState(ptr)
 
-            mainLoop()
+                mainLoop()
+            }
         }
+
     }
 
     func getQuickStateUrl() -> URL? {
@@ -193,34 +213,21 @@ class EmulatorCore: ObservableObject {
         }
     }
 
-    func saveState(saveState: SaveState?, saveNumber: Int?) -> SaveState? {
-        // saveName: String, screenshot: [UInt8], bookmark: Data, timestamp: Int
+    func saveState() -> StateInfo? {
         if let emulator = emulator {
-            let date = Date()
+            isRunning = false
 
             let screenshot = emulator.getScreenshot()
+            let (width, height) = emulator.getDimensions()
 
             let screenshotArr = Array(screenshot)
 
             let stateVec = emulator.saveState()
 
-            if let saveState = saveState {
-                saveState.saveData = Data(Array(stateVec))
-                saveState.timestamp = Int(date.timeIntervalSince1970)
-                saveState.screenshot = Data(screenshotArr)
+            isRunning = true
+            mainLoop()
 
-                return saveState
-            } else if let saveNumber = saveNumber {
-                let saveName = "Save State \(saveNumber)"
-                let saveState = SaveState(
-                    saveName: saveName,
-                    screenshot: screenshotArr,
-                    saveData: Data(Array(stateVec)),
-                    timestamp: Int(date.timeIntervalSince1970)
-                )
-
-                return saveState
-            }
+            return StateInfo(Data(Array(stateVec)), Data(screenshotArr), width, height)
         }
 
         return nil

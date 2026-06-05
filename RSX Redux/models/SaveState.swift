@@ -11,18 +11,21 @@ import SwiftData
 @Model
 class SaveState {
     var saveName: String
-    @Attribute(.unique)
     var game: Game?
     var screenshot: Data
+    var imageWidth: UInt32
+    var imageHeight: UInt32
     var saveData: Data
 
     var timestamp: Int
 
-    init(saveName: String, screenshot: [UInt8], saveData: Data, timestamp: Int) {
+    init(saveName: String, screenshot: Data, imageWidth: UInt32, imageHeight: UInt32, saveData: Data, timestamp: Int) {
         self.saveName = saveName
-        self.screenshot = Data(screenshot)
+        self.screenshot = screenshot
         self.saveData = saveData
         self.timestamp = timestamp
+        self.imageWidth = imageWidth
+        self.imageHeight = imageHeight
     }
 
     func compare(_ rhs: SaveState) -> Bool {

@@ -35,7 +35,7 @@ class AudioManager {
 
     func startAudio() {
         audioNode = AVAudioSourceNode { [weak self] _, _, frameCount, audioBufferList -> OSStatus in
-            guard let self else { return noErr }
+            guard let self, !self.playerPaused else { return noErr }
 
             let abl = UnsafeMutableAudioBufferListPointer(audioBufferList)
 

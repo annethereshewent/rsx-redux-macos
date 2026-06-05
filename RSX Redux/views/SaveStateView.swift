@@ -21,12 +21,14 @@ struct SaveStateView: View {
             ) {
                 let saveStates = currentGame?.saveStates ?? []
                 ForEach(saveStates) { saveState in
-                    let nsImage = NSImage(data: saveState.screenshot) ?? NSImage()
+                    let nsImage = imageFromRGBA(saveState.screenshot, width: Int(saveState.imageWidth), height: Int(saveState.imageHeight)) ?? NSImage()
                     Button() {
                         emulatorCore.loadState(data: saveState.saveData)
                     } label: {
                         VStack {
                             Image(nsImage: nsImage)
+                                .resizable()
+                                .frame(width: 160, height: 120)
                             Text(saveState.saveName)
                         }
                     }
@@ -34,5 +36,33 @@ struct SaveStateView: View {
                 }
             }
         }
+    }
+
+    func imageFromRGBA(_ data: Data, width: Int, height: Int) -> NSImage? {
+        let bytesPerPixel = 4
+        let bitsPerComponent = 8
+        let bytesPerRow = width * bytesPerPixel
+
+        guard let provider = CGDataProvider(data: data as CFData) else {
+            return nil
+        }
+
+        guard let cgImage = CGImage(
+            width: width,
+            height: height,
+            bitsPerComponent: bitsPerComponent,
+            bitsPerPixel: bytesPerPixel * bitsPerComponent,
+            bytesPerRow: bytesPerRow,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+            provider: provider,
+            decode: nil,
+            shouldInterpolate: false,
+            intent: .defaultIntent
+        ) else {
+            return nil
+        }
+
+        return NSImage(cgImage: cgImage, size: NSSize(width: width, height: height))
     }
 }
