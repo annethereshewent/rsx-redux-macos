@@ -134,6 +134,7 @@ class EmulatorCore: ObservableObject {
 
                     waveFormModel.push(samples: Array(samples))
                     audioManager.updateBuffer(samples: samples)
+                    
                 }
             }
         }

@@ -8,6 +8,7 @@
 import Foundation
 import GameController
 import PSXMacEmulator
+import CoreHaptics
 
 enum PressedButton: UInt {
     case circle = 13
@@ -31,6 +32,7 @@ enum PressedButton: UInt {
 @Observable
 class GameController {
     let eventListenerClosure: (GCController) -> Void
+    private var engine: CHHapticEngine?
 
     var controller: GCController? = GCController()
 
@@ -52,9 +54,25 @@ class GameController {
         if let controller = GCController.controllers().first {
             self.controller = controller
             self.controller?.physicalInputProfile.buttons[GCInputButtonHome]?.preferredSystemGestureState = GCControllerElement.SystemGestureState.disabled
+            prepareHaptics()
 
             eventListenerClosure(controller)
         }
+    }
+
+    func prepareHaptics() {
+        if let controller = controller, let haptics = controller.haptics {
+            do {
+                engine = haptics.createEngine(withLocality: .default)
+                try engine?.start()
+            } catch {
+                print(error)
+            }
+        }
+    }
+
+    func rumble(intensity: Float, duration: TimeInterval) {
+        
     }
 
     @objc private func handleControllerDidDisconnect(_ notification: Notification) {
@@ -69,6 +87,7 @@ class GameController {
         gameController.physicalInputProfile.buttons[GCInputButtonHome]?.preferredSystemGestureState = GCControllerElement.SystemGestureState.disabled
 
         self.controller = gameController
+        prepareHaptics()
 
         eventListenerClosure(gameController)
     }
