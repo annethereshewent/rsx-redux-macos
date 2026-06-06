@@ -38,9 +38,15 @@ struct AppCommands: Commands {
 
                                 currentGame = game
 
-                                emulatorCore.initialize()
-                                emulatorCore.loadBios(biosUrl: biosUrl)
-                                emulatorCore.startEmulator(gameUrl: url)
+                                emulatorCore.stopEmulatorThen {
+                                    emulatorCore.initialize()
+                                    emulatorCore.loadBios(biosUrl: biosUrl)
+                                    if url.pathExtension == "exe" {
+                                        emulatorCore.startExe(exeUrl: url)
+                                    } else {
+                                        emulatorCore.startEmulator(gameUrl: url)
+                                    }
+                                }
                             } catch {
                                 print(error)
                             }
@@ -65,7 +71,7 @@ struct AppCommands: Commands {
                 showDialog = true
                 fileType = .disc
             }
-            .disabled(!emulatorCore.isRunning)
+            .disabled(currentGame == nil)
         }
         CommandGroup(after: .newItem) {
             Button("Load Bios") {
@@ -114,7 +120,7 @@ struct AppCommands: Commands {
                 }
 
             }
-            .disabled(currentGame == nil || !emulatorCore.isRunning)
+            .disabled(currentGame == nil)
             .keyboardShortcut("s", modifiers: [.command])
         }
         CommandGroup(after: .toolbar) {

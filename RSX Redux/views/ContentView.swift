@@ -212,15 +212,6 @@ struct ContentView: View {
                         }
                         break
                     case .disc:
-                        if initialize {
-                            if let biosUrl = currentBiosUrl {
-                                emulatorCore.initialize()
-                                emulatorCore.loadBios(biosUrl: biosUrl)
-                            } else {
-                                return
-                            }
-                        }
-
                         let gameName = url.deletingPathExtension().lastPathComponent
 
                         if let index = games.firstIndex(where: { $0.gameName == gameName }) {
@@ -253,7 +244,21 @@ struct ContentView: View {
                             if url.pathExtension == "exe" {
                                 emulatorCore.startExe(exeUrl: url)
                             } else {
-                                emulatorCore.startEmulator(gameUrl: url)
+                                if emulatorCore.isRunning {
+                                    emulatorCore.stopEmulatorThen {
+                                        if let biosUrl = currentBiosUrl {
+                                            emulatorCore.initialize()
+                                            emulatorCore.loadBios(biosUrl: biosUrl)
+                                            emulatorCore.startEmulator(gameUrl: url)
+                                        }
+                                    }
+                                } else {
+                                    if let biosUrl = currentBiosUrl {
+                                        emulatorCore.initialize()
+                                        emulatorCore.loadBios(biosUrl: biosUrl)
+                                        emulatorCore.startEmulator(gameUrl: url)
+                                    }
+                                }
                             }
                         } else {
                             emulatorCore.mainLoop()
