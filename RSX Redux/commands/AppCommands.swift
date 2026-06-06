@@ -57,7 +57,7 @@ struct AppCommands: Commands {
             .disabled(!emulatorCore.biosLoaded)
         }
         CommandGroup(after: .newItem) {
-            Button("New Game") {
+            Button("Open") {
                 initialize = true
                 showDialog = true
                 fileType = .disc
