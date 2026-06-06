@@ -39,9 +39,8 @@ let KEY_F7: UInt = 98
 struct EmulatorView: NSViewRepresentable {
     @EnvironmentObject var core: EmulatorCore
     func makeNSView(context: Context) -> EmulatorNSView {
-        let view = EmulatorNSView()
+        let view = EmulatorNSView(layer: core.layer)
         view.wantsLayer = true
-        view.layer = core.layer
         view.emulatorCore = core
 
         DispatchQueue.main.async {
@@ -52,16 +51,26 @@ struct EmulatorView: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: EmulatorNSView, context: Context) {
-        // if SwiftUI recreated the view, reattach the layer
-        if nsView.layer !== core.layer {
-            nsView.layer = core.layer
-        }
+        // NOP
     }
 }
 
 class EmulatorNSView: NSView {
     var emulatorCore: EmulatorCore? = nil
     private var lastFlag: UInt = 0
+
+    let metalLayer: CAMetalLayer
+
+    init(layer: CAMetalLayer) {
+        self.metalLayer = layer
+        super.init(frame: .zero)
+        self.wantsLayer = true
+        self.layer = layer
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private let keyDict: [UInt: PressedButton] = [
         KEY_W: .up,

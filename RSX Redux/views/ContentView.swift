@@ -29,6 +29,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var context
 
     let binType = UTType(filenameExtension: "bin", conformingTo: .data)
+    let exeType = UTType(filenameExtension: "exe", conformingTo: .data)
 
     private func addControllerEventListeners(_ controller: GCController?) {
         if let controller = controller?.extendedGamepad as? GCDualSenseGamepad {
@@ -181,11 +182,6 @@ struct ContentView: View {
             .aspectRatio(4/3, contentMode: .fit)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.black)
-            .onChange(of: currentDiscUrl) {
-                if let url = currentDiscUrl {
-                    emulatorCore.startEmulator(gameUrl: url)
-                }
-            }
             .onChange(of: currentBiosUrl) {
                 if let url = currentBiosUrl {
                     emulatorCore.loadBios(biosUrl: url)
@@ -196,7 +192,7 @@ struct ContentView: View {
                     addControllerEventListeners(controller)
                 }
             }
-            .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!] ) { result in
+            .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!, exeType!] ) { result in
                 if let url = try? result.get() {
                     switch fileType {
                     case .bios:
@@ -216,14 +212,6 @@ struct ContentView: View {
                         }
                         break
                     case .disc:
-                        if emulatorCore.isRunning && initialize {
-                            if let biosUrl = currentBiosUrl {
-                                emulatorCore.isRunning = false
-                                emulatorCore.initialize()
-                                emulatorCore.loadBios(biosUrl: biosUrl)
-                            }
-                        }
-
                         let gameName = url.deletingPathExtension().lastPathComponent
 
                         if let index = games.firstIndex(where: { $0.gameName == gameName }) {
@@ -251,6 +239,30 @@ struct ContentView: View {
                             }
                         }
                         currentDiscUrl = url
+
+                        if initialize {
+                            if url.pathExtension == "exe" {
+                                emulatorCore.startExe(exeUrl: url)
+                            } else {
+                                if emulatorCore.isRunning {
+                                    emulatorCore.stopEmulatorThen {
+                                        if let biosUrl = currentBiosUrl {
+                                            emulatorCore.initialize()
+                                            emulatorCore.loadBios(biosUrl: biosUrl)
+                                            emulatorCore.startEmulator(gameUrl: url)
+                                        }
+                                    }
+                                } else {
+                                    if let biosUrl = currentBiosUrl {
+                                        emulatorCore.initialize()
+                                        emulatorCore.loadBios(biosUrl: biosUrl)
+                                        emulatorCore.startEmulator(gameUrl: url)
+                                    }
+                                }
+                            }
+                        } else {
+                            emulatorCore.mainLoop()
+                        }
                         break
                     default: break
                     }

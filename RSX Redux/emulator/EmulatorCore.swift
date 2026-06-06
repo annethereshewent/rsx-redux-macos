@@ -8,6 +8,7 @@ import Foundation
 import MetalKit
 import PSXMacEmulator
 import Combine
+import Atomics
 
 class StateInfo {
     var saveData: Data
@@ -24,34 +25,49 @@ class StateInfo {
 }
 
 class EmulatorCore: ObservableObject {
-    @Published private(set) var layer: CAMetalLayer?
+    @Published private(set) var layer: CAMetalLayer
     private var initialized = false
     private var emulator: PsxMacEmulator?
-    @Published var isRunning = false
+    var isRunning = false
     @Published var biosLoaded = false
     @Published var showWaveForm = false
     private let emuQueue = DispatchQueue(label: "rsx-redux.emu", qos: .userInteractive)
     private let audioManager = AudioManager()
     var waveFormModel = WaveformModel()
+    private var generationId = 0
 
     private var gameUrl: URL?
     private var saveStateUrl: URL?
 
+    init() {
+        let metalLayer = CAMetalLayer()
+        metalLayer.device = MTLCreateSystemDefaultDevice()
+        metalLayer.pixelFormat = .bgra8Unorm
+        metalLayer.framebufferOnly = true
+
+        layer = metalLayer
+    }
+
     func initialize() {
-        if !initialized {
-            initialized = true
+        generationId += 1
 
-            let metalLayer = CAMetalLayer()
-            metalLayer.device = MTLCreateSystemDefaultDevice()
-            metalLayer.pixelFormat = .bgra8Unorm
-            metalLayer.framebufferOnly = true
-
-            self.layer = metalLayer
-        }
-
-        let ptr = Unmanaged.passUnretained(layer!).toOpaque()
+        let ptr = Unmanaged.passUnretained(layer).toOpaque()
 
         emulator = PsxMacEmulator(ptr)
+    }
+
+    func startExe(exeUrl: URL) {
+        if let emulator = emulator {
+            if exeUrl.startAccessingSecurityScopedResource() {
+                defer {
+                    exeUrl.stopAccessingSecurityScopedResource()
+                }
+                
+                emulator.startExe(exeUrl.path)
+
+                mainLoop()
+            }
+        }
     }
 
     func setMemoryCard() {
@@ -71,12 +87,6 @@ class EmulatorCore: ObservableObject {
         }
     }
 
-    func shutdown() {
-        guard initialized else { return }
-        layer = nil
-        initialized = false
-    }
-
     func startEmulator(gameUrl: URL) {
         if let emulator = emulator {
             if gameUrl.startAccessingSecurityScopedResource() {
@@ -86,29 +96,44 @@ class EmulatorCore: ObservableObject {
 
                 setMemoryCard()
 
+                if !audioManager.isRunning {
+                    audioManager.startAudio()
+                }
+
                 let gamePath = gameUrl.path
                 self.gameUrl = gameUrl
                 emulator.loadRom(gamePath)
-
-                audioManager.startAudio()
 
                 mainLoop()
             }
         }
     }
 
+    func stopEmulatorThen(_ block: @escaping () -> Void) {
+        isRunning = false
+        generationId += 1
+
+        emuQueue.async {
+            block()
+        }
+    }
+
     func mainLoop() {
         if let emulator = emulator {
-            isRunning = true
+            self.isRunning = true
             emuQueue.async { [weak self] in
                 guard let self else { return }
-                while self.isRunning {
+
+                let currGeneration = self.generationId
+
+                while isRunning && currGeneration == self.generationId {
                     emulator.stepFrame()
+
 
                     let samples = emulator.drainSamples()
 
                     waveFormModel.push(samples: Array(samples))
-                    self.audioManager.updateBuffer(samples: samples)
+                    audioManager.updateBuffer(samples: samples)
                 }
             }
         }
@@ -122,7 +147,9 @@ class EmulatorCore: ObservableObject {
         let biosPath = biosUrl.path
 
         emulator?.loadBios(biosPath)
-        biosLoaded = true
+        DispatchQueue.main.async {
+            self.biosLoaded = true
+        }
     }
 
     func toggleDigitalMode() {
@@ -143,41 +170,43 @@ class EmulatorCore: ObservableObject {
 
     func loadQuickState() {
         if let url = saveStateUrl ?? getQuickStateUrl() {
-            if gameUrl?.startAccessingSecurityScopedResource() ?? false {
-                defer {
-                    gameUrl?.stopAccessingSecurityScopedResource()
-                }
-                do {
-                    let data = try Data(contentsOf: url)
-
-                    isRunning = false
-
-                    Array(data).withUnsafeBufferPointer { ptr in
-                        emulator?.loadState(ptr)
-
-                        mainLoop()
+            stopEmulatorThen {
+                if self.gameUrl?.startAccessingSecurityScopedResource() ?? false {
+                    defer {
+                        self.gameUrl?.stopAccessingSecurityScopedResource()
                     }
-                } catch {
-                    print(error)
+                    do {
+                        let data = try Data(contentsOf: url)
+
+
+                        Array(data).withUnsafeBufferPointer { ptr in
+                            self.emulator?.loadState(ptr)
+
+                            self.mainLoop()
+                        }
+
+                    } catch {
+                        print(error)
+                    }
                 }
             }
         }
     }
 
     func loadState(data: Data) {
-        if gameUrl?.startAccessingSecurityScopedResource() ?? false {
-            defer {
-                gameUrl?.stopAccessingSecurityScopedResource()
-            }
-            isRunning = false
+        stopEmulatorThen {
+            if self.gameUrl?.startAccessingSecurityScopedResource() ?? false {
+                defer {
+                    self.gameUrl?.stopAccessingSecurityScopedResource()
+                }
 
-            Array(data).withUnsafeBufferPointer { ptr in
-                emulator?.loadState(ptr)
+                Array(data).withUnsafeBufferPointer { ptr in
+                    self.emulator?.loadState(ptr)
 
-                mainLoop()
+                    self.mainLoop()
+                }
             }
         }
-
     }
 
     func getQuickStateUrl() -> URL? {
@@ -224,7 +253,6 @@ class EmulatorCore: ObservableObject {
 
             let stateVec = emulator.saveState()
 
-            isRunning = true
             mainLoop()
 
             return StateInfo(Data(Array(stateVec)), Data(screenshotArr), width, height)
