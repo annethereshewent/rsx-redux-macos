@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		E887F52D2FD006930046E8C5 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = E887F52C2FD006930046E8C5 /* Collections */; };
 		E8BC90CA2FD23E80002C25D0 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E8BC90C92FD23E80002C25D0 /* PSXMacEmulator */; };
-		E8BC90CD2FD3B8DB002C25D0 /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = E8BC90CC2FD3B8DB002C25D0 /* Atomics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,7 +29,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E8BC90CD2FD3B8DB002C25D0 /* Atomics in Frameworks */,
 				E887F52D2FD006930046E8C5 /* Collections in Frameworks */,
 				E8BC90CA2FD23E80002C25D0 /* PSXMacEmulator in Frameworks */,
 			);
@@ -87,7 +85,6 @@
 			packageProductDependencies = (
 				E887F52C2FD006930046E8C5 /* Collections */,
 				E8BC90C92FD23E80002C25D0 /* PSXMacEmulator */,
-				E8BC90CC2FD3B8DB002C25D0 /* Atomics */,
 			);
 			productName = "RSX Redux";
 			productReference = E887F4D72FCEDBDF0046E8C5 /* RSX Redux.app */;
@@ -120,7 +117,6 @@
 			packageReferences = (
 				E887F52A2FD006440046E8C5 /* XCRemoteSwiftPackageReference "swift-collections" */,
 				E8BC90C82FD23E80002C25D0 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */,
-				E8BC90CB2FD3B8DB002C25D0 /* XCRemoteSwiftPackageReference "swift-atomics" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E887F4D82FCEDBDF0046E8C5 /* Products */;
@@ -403,14 +399,6 @@
 				minimumVersion = 1.5.1;
 			};
 		};
-		E8BC90CB2FD3B8DB002C25D0 /* XCRemoteSwiftPackageReference "swift-atomics" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-atomics.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.3.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -422,11 +410,6 @@
 		E8BC90C92FD23E80002C25D0 /* PSXMacEmulator */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PSXMacEmulator;
-		};
-		E8BC90CC2FD3B8DB002C25D0 /* Atomics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E8BC90CB2FD3B8DB002C25D0 /* XCRemoteSwiftPackageReference "swift-atomics" */;
-			productName = Atomics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
