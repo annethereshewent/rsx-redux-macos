@@ -134,7 +134,12 @@ class EmulatorCore: ObservableObject {
 
                     waveFormModel.push(samples: Array(samples))
                     audioManager.updateBuffer(samples: samples)
-                    
+
+                    let (smallMotor, largeMotor) = emulator.getRumble()
+
+                    let intensity = max(smallMotor ? 0.35 : 0, Float(largeMotor) / 255.0)
+
+                    gameController?.rumble(intensity: intensity, duration: 0.2)
                 }
             }
         }
