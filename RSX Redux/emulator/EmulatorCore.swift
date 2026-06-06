@@ -8,7 +8,6 @@ import Foundation
 import MetalKit
 import PSXMacEmulator
 import Combine
-import Atomics
 
 class StateInfo {
     var saveData: Data
