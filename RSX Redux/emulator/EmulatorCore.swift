@@ -8,6 +8,7 @@ import Foundation
 import MetalKit
 import PSXMacEmulator
 import Combine
+import GameController
 
 class StateInfo {
     var saveData: Data
@@ -30,6 +31,7 @@ class EmulatorCore: ObservableObject {
     var isRunning = false
     @Published var biosLoaded = false
     @Published var showWaveForm = false
+    var gameController: GameController? = nil
     private let emuQueue = DispatchQueue(label: "rsx-redux.emu", qos: .userInteractive)
     private let audioManager = AudioManager()
     var waveFormModel = WaveformModel()
@@ -128,11 +130,16 @@ class EmulatorCore: ObservableObject {
                 while isRunning && currGeneration == self.generationId {
                     emulator.stepFrame()
 
-
                     let samples = emulator.drainSamples()
 
                     waveFormModel.push(samples: Array(samples))
                     audioManager.updateBuffer(samples: samples)
+
+                    let (smallMotor, largeMotor) = emulator.getRumble()
+
+                    let intensity = max(smallMotor ? 0.35 : 0, Float(largeMotor) / 255.0)
+
+                    gameController?.rumble(intensity: intensity, duration: 0.2)
                 }
             }
         }

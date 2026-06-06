@@ -8,6 +8,7 @@
 import Foundation
 import GameController
 import PSXMacEmulator
+import CoreHaptics
 
 enum PressedButton: UInt {
     case circle = 13
@@ -31,6 +32,7 @@ enum PressedButton: UInt {
 @Observable
 class GameController {
     let eventListenerClosure: (GCController) -> Void
+    private var engine: CHHapticEngine?
 
     var controller: GCController? = GCController()
 
@@ -52,8 +54,49 @@ class GameController {
         if let controller = GCController.controllers().first {
             self.controller = controller
             self.controller?.physicalInputProfile.buttons[GCInputButtonHome]?.preferredSystemGestureState = GCControllerElement.SystemGestureState.disabled
+            prepareHaptics()
 
             eventListenerClosure(controller)
+        }
+    }
+
+    private func prepareHaptics() {
+        if let controller = controller, let haptics = controller.haptics {
+            do {
+                engine = haptics.createEngine(withLocality: .default)
+                try engine?.start()
+            } catch {
+                print(error)
+            }
+        }
+    }
+
+    func rumble(intensity: Float, duration: TimeInterval) {
+        guard let engine else { return }
+
+        let intensity = CHHapticEventParameter(
+            parameterID: .hapticIntensity,
+            value: intensity
+        )
+
+        let sharpness = CHHapticEventParameter(
+            parameterID: .hapticSharpness,
+            value: 0.4
+        )
+
+        let event = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [intensity, sharpness],
+            relativeTime: 0,
+            duration: duration
+        )
+
+        do {
+            let pattern = try CHHapticPattern(events: [event], parameters: [])
+            let player = try engine.makePlayer(with: pattern)
+            try player.start(atTime: 0)
+        } catch {
+            print("Failed to play haptic:", error)
         }
     }
 
@@ -69,6 +112,7 @@ class GameController {
         gameController.physicalInputProfile.buttons[GCInputButtonHome]?.preferredSystemGestureState = GCControllerElement.SystemGestureState.disabled
 
         self.controller = gameController
+        prepareHaptics()
 
         eventListenerClosure(gameController)
     }

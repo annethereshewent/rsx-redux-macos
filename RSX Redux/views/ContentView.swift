@@ -188,7 +188,7 @@ struct ContentView: View {
                 }
             }
             .onAppear() {
-                gameController = GameController() { controller in
+                emulatorCore.gameController = GameController() { controller in
                     addControllerEventListeners(controller)
                 }
             }

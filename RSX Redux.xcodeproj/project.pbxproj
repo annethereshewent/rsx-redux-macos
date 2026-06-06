@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E887F52D2FD006930046E8C5 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = E887F52C2FD006930046E8C5 /* Collections */; };
-		E8BC90CA2FD23E80002C25D0 /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E8BC90C92FD23E80002C25D0 /* PSXMacEmulator */; };
+		E8DEBFB72FD4BCBF00A28EEF /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E8DEBFB62FD4BCBF00A28EEF /* PSXMacEmulator */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,7 +30,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E887F52D2FD006930046E8C5 /* Collections in Frameworks */,
-				E8BC90CA2FD23E80002C25D0 /* PSXMacEmulator in Frameworks */,
+				E8DEBFB72FD4BCBF00A28EEF /* PSXMacEmulator in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,7 +84,7 @@
 			name = "RSX Redux";
 			packageProductDependencies = (
 				E887F52C2FD006930046E8C5 /* Collections */,
-				E8BC90C92FD23E80002C25D0 /* PSXMacEmulator */,
+				E8DEBFB62FD4BCBF00A28EEF /* PSXMacEmulator */,
 			);
 			productName = "RSX Redux";
 			productReference = E887F4D72FCEDBDF0046E8C5 /* RSX Redux.app */;
@@ -116,7 +116,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				E887F52A2FD006440046E8C5 /* XCRemoteSwiftPackageReference "swift-collections" */,
-				E8BC90C82FD23E80002C25D0 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */,
+				E8DEBFB52FD4BCBF00A28EEF /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E887F4D82FCEDBDF0046E8C5 /* Products */;
@@ -384,7 +384,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		E8BC90C82FD23E80002C25D0 /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */ = {
+		E8DEBFB52FD4BCBF00A28EEF /* XCLocalSwiftPackageReference "../../rust-projects/rsx-redux/macos/PSXMacEmulator" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../../rust-projects/rsx-redux/macos/PSXMacEmulator";
 		};
@@ -407,7 +407,7 @@
 			package = E887F52A2FD006440046E8C5 /* XCRemoteSwiftPackageReference "swift-collections" */;
 			productName = Collections;
 		};
-		E8BC90C92FD23E80002C25D0 /* PSXMacEmulator */ = {
+		E8DEBFB62FD4BCBF00A28EEF /* PSXMacEmulator */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PSXMacEmulator;
 		};
