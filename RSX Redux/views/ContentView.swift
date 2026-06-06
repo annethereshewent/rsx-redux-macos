@@ -29,6 +29,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var context
 
     let binType = UTType(filenameExtension: "bin", conformingTo: .data)
+    let exeType = UTType(filenameExtension: "exe", conformingTo: .data)
 
     private func addControllerEventListeners(_ controller: GCController?) {
         if let controller = controller?.extendedGamepad as? GCDualSenseGamepad {
@@ -191,7 +192,7 @@ struct ContentView: View {
                     addControllerEventListeners(controller)
                 }
             }
-            .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!] ) { result in
+            .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!, exeType!] ) { result in
                 if let url = try? result.get() {
                     switch fileType {
                     case .bios:
@@ -249,7 +250,11 @@ struct ContentView: View {
                         currentDiscUrl = url
 
                         if initialize {
-                            emulatorCore.startEmulator(gameUrl: url)
+                            if url.pathExtension == "exe" {
+                                emulatorCore.startExe(exeUrl: url)
+                            } else {
+                                emulatorCore.startEmulator(gameUrl: url)
+                            }
                         } else {
                             emulatorCore.mainLoop()
                         }

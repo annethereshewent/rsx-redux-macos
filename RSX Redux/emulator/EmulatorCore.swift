@@ -58,6 +58,20 @@ class EmulatorCore: ObservableObject {
         emulator = PsxMacEmulator(ptr)
     }
 
+    func startExe(exeUrl: URL) {
+        if let emulator = emulator {
+            if exeUrl.startAccessingSecurityScopedResource() {
+                defer {
+                    exeUrl.stopAccessingSecurityScopedResource()
+                }
+                
+                emulator.startExe(exeUrl.path)
+
+                mainLoop()
+            }
+        }
+    }
+
     func setMemoryCard() {
         var url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("RSX Redux", isDirectory: true)
 
