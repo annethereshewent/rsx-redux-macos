@@ -30,4 +30,4 @@ Coming soon:
    
 ## Controls
 
-See https://github.com/annethereshewent/rsx-redux for keyboard mappings. Controls on controllers are effectively the same mappings as on the playstation 1 controller for DualShock 4, 5, and Dualsense controllers. For Xbox 360 controllers, mappings are the equivalent version (ie: "A" maps to "Cross," "B" maps to "Circle," and so on)
+See https://github.com/annethereshewent/rsx-redux for keyboard mappings. Controls on controllers are effectively the same mappings as on the playstation 1 controller for DualShock 3, 4 and Dualsense controllers. For Xbox controllers, mappings are the equivalent version (ie: "A" maps to "Cross," "B" maps to "Circle," and so on)
