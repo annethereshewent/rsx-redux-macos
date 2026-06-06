@@ -8,6 +8,7 @@ import Foundation
 import MetalKit
 import PSXMacEmulator
 import Combine
+import Atomics
 
 class StateInfo {
     var saveData: Data
@@ -33,11 +34,14 @@ class EmulatorCore: ObservableObject {
     private let emuQueue = DispatchQueue(label: "rsx-redux.emu", qos: .userInteractive)
     private let audioManager = AudioManager()
     var waveFormModel = WaveformModel()
+    private var generationId = 0
 
     private var gameUrl: URL?
     private var saveStateUrl: URL?
 
     func initialize() {
+        isRunning = false
+        generationId += 1
         if !initialized {
             initialized = true
 
@@ -86,11 +90,13 @@ class EmulatorCore: ObservableObject {
 
                 setMemoryCard()
 
+                if !audioManager.isRunning {
+                    audioManager.startAudio()
+                }
+
                 let gamePath = gameUrl.path
                 self.gameUrl = gameUrl
                 emulator.loadRom(gamePath)
-
-                audioManager.startAudio()
 
                 mainLoop()
             }
@@ -102,13 +108,17 @@ class EmulatorCore: ObservableObject {
             isRunning = true
             emuQueue.async { [weak self] in
                 guard let self else { return }
-                while self.isRunning {
+
+                let currGeneration = self.generationId
+
+                while isRunning && currGeneration == self.generationId {
                     emulator.stepFrame()
+
 
                     let samples = emulator.drainSamples()
 
                     waveFormModel.push(samples: Array(samples))
-                    self.audioManager.updateBuffer(samples: samples)
+                    audioManager.updateBuffer(samples: samples)
                 }
             }
         }

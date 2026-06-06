@@ -181,11 +181,6 @@ struct ContentView: View {
             .aspectRatio(4/3, contentMode: .fit)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.black)
-            .onChange(of: currentDiscUrl) {
-                if let url = currentDiscUrl {
-                    emulatorCore.startEmulator(gameUrl: url)
-                }
-            }
             .onChange(of: currentBiosUrl) {
                 if let url = currentBiosUrl {
                     emulatorCore.loadBios(biosUrl: url)
@@ -216,11 +211,12 @@ struct ContentView: View {
                         }
                         break
                     case .disc:
-                        if emulatorCore.isRunning && initialize {
+                        if initialize {
                             if let biosUrl = currentBiosUrl {
-                                emulatorCore.isRunning = false
                                 emulatorCore.initialize()
                                 emulatorCore.loadBios(biosUrl: biosUrl)
+                            } else {
+                                return
                             }
                         }
 
@@ -251,6 +247,12 @@ struct ContentView: View {
                             }
                         }
                         currentDiscUrl = url
+
+                        if initialize {
+                            emulatorCore.startEmulator(gameUrl: url)
+                        } else {
+                            emulatorCore.mainLoop()
+                        }
                         break
                     default: break
                     }

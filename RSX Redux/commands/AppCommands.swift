@@ -38,7 +38,6 @@ struct AppCommands: Commands {
 
                                 currentGame = game
 
-                                emulatorCore.isRunning = false
                                 emulatorCore.initialize()
                                 emulatorCore.loadBios(biosUrl: biosUrl)
                                 emulatorCore.startEmulator(gameUrl: url)
