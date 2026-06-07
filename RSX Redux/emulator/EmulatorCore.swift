@@ -39,7 +39,7 @@ class EmulatorCore: ObservableObject {
     private var generationId = 0
     private var vibration = false
     private var digitalMode = false
-    private var memoryCard: String = ""
+    private var memoryCard: String = "memory_card.mcd"
 
     private var gameUrl: URL?
     private var saveStateUrl: URL?

@@ -18,7 +18,6 @@ struct SettingsView: View {
 
     var body: some View {
         VStack {
-
             if !showKeyboardBindings {
                 Text("Settings")
                     .font(.largeTitle)
@@ -93,7 +92,7 @@ struct SettingsView: View {
                 Text("Controller Settings")
                     .font(.largeTitle)
                     .bold()
-                KeyboardBindingsView()
+                KeyboardBindingsView(showKeyboardBindings: $showKeyboardBindings)
             }
         }
         .onChange(of: selectedController) {
