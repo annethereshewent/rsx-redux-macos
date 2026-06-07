@@ -137,9 +137,10 @@ class EmulatorCore: ObservableObject {
 
                     let (smallMotor, largeMotor) = emulator.getRumble()
 
-                    let intensity = max(smallMotor ? 0.35 : 0, Float(largeMotor) / 255.0)
+                    let smallIntensity: Float = smallMotor ? 0.15 : 0.0
+                    let largeIntensity = Float(largeMotor) / 255.0
 
-                    gameController?.rumble(intensity: intensity, duration: 0.2)
+                    gameController?.handleRumble(smallEngineIntensity: smallIntensity, largeEngineIntensity: largeIntensity)
                 }
             }
         }
