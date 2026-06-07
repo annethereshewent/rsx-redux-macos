@@ -149,7 +149,6 @@ class EmulatorNSView: NSView {
         } else if event.keyCode == KEY_E {
             let digitalMode = emulatorCore?.getDigitalMode() ?? false
             emulatorCore?.setDigitalMode(!digitalMode)
-            print("set digital mode to \(!digitalMode)")
         } else {
             switch UInt(event.keyCode) {
             case KEY_W:
