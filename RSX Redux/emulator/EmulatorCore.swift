@@ -71,6 +71,14 @@ class EmulatorCore: ObservableObject {
         }
     }
 
+    func getDigitalMode() -> Bool {
+        return emulator?.getDigitalMode() ?? false
+    }
+
+    func setDigitalMode(_ value: Bool) {
+        emulator?.setDigitalMode(value)
+    }
+
     func setMemoryCard() {
         var url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("RSX Redux", isDirectory: true)
 
@@ -137,9 +145,10 @@ class EmulatorCore: ObservableObject {
 
                     let (smallMotor, largeMotor) = emulator.getRumble()
 
-                    let intensity = max(smallMotor ? 0.35 : 0, Float(largeMotor) / 255.0)
+                    let smallIntensity: Float = smallMotor ? 0.15 : 0.0
+                    let largeIntensity = Float(largeMotor) / 255.0
 
-                    gameController?.rumble(intensity: intensity, duration: 0.2)
+                    gameController?.handleRumble(smallEngineIntensity: smallIntensity, largeEngineIntensity: largeIntensity)
                 }
             }
         }
@@ -168,6 +177,14 @@ class EmulatorCore: ObservableObject {
 
     func setLeftThumbstick(_ normalizedX: UInt8, _ normalizedY: UInt8) {
         emulator?.setLeftThumbstick(normalizedX, normalizedY)
+    }
+
+    func setLeftX(_ normalizedX: UInt8) {
+        emulator?.setLeftX(normalizedX)
+    }
+
+    func setLeftY(_ normalizedY: UInt8) {
+        emulator?.setLeftY(normalizedY)
     }
 
     func setRightThumbstick(_ normalizedX: UInt8, _ normalizedY: UInt8) {

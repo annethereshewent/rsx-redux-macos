@@ -27,6 +27,8 @@ let KEY_9: UInt = 25
 let KEY_TAB: UInt = 48
 let KEY_ENTER: UInt = 36
 
+let KEY_E: UInt = 14
+
 let LEFT_SHIFT: UInt = 131330
 let RIGHT_SHIFT: UInt = 131332
 
@@ -73,11 +75,6 @@ class EmulatorNSView: NSView {
     }
 
     private let keyDict: [UInt: PressedButton] = [
-        KEY_W: .up,
-        KEY_S: .down,
-        KEY_A: .left,
-        KEY_D: .right,
-
         KEY_I: .triangle,
         KEY_K: .cross,
         KEY_J: .square,
@@ -104,8 +101,40 @@ class EmulatorNSView: NSView {
     override func keyDown(with event: NSEvent) {
         if let button = keyDict[UInt(event.keyCode)] {
             emulatorCore?.updateInput(button, true)
-        }
+        } else {
+            switch UInt(event.keyCode) {
+            case KEY_W:
+                if emulatorCore?.getDigitalMode() ?? false {
+                    emulatorCore?.updateInput(.up, true)
+                } else {
+                    emulatorCore?.setLeftY(0x0)
+                }
+                break
+            case KEY_S:
+                if emulatorCore?.getDigitalMode() ?? false {
+                    emulatorCore?.updateInput(.down, true)
+                } else {
+                    emulatorCore?.setLeftY(0xff)
+                }
+                break
 
+            case KEY_A:
+                if emulatorCore?.getDigitalMode() ?? false {
+                    emulatorCore?.updateInput(.left, true)
+                } else {
+                    emulatorCore?.setLeftX(0x0)
+                }
+                break
+            case KEY_D:
+                if emulatorCore?.getDigitalMode() ?? false {
+                    emulatorCore?.updateInput(.right, true)
+                } else {
+                    emulatorCore?.setLeftX(0xff)
+                }
+                break
+            default: break
+            }
+        }
     }
 
     override func keyUp(with event: NSEvent) {
@@ -117,6 +146,42 @@ class EmulatorNSView: NSView {
             emulatorCore?.saveQuickState()
         } else if event.keyCode == KEY_F7 {
             emulatorCore?.loadQuickState()
+        } else if event.keyCode == KEY_E {
+            let digitalMode = emulatorCore?.getDigitalMode() ?? false
+            emulatorCore?.setDigitalMode(!digitalMode)
+        } else {
+            switch UInt(event.keyCode) {
+            case KEY_W:
+                if emulatorCore?.getDigitalMode() ?? false {
+                    emulatorCore?.updateInput(.up, false)
+                } else {
+                    emulatorCore?.setLeftY(0x80)
+                }
+                break
+            case KEY_S:
+                if emulatorCore?.getDigitalMode() ?? false {
+                    emulatorCore?.updateInput(.down, false)
+                } else {
+                    emulatorCore?.setLeftY(0x80)
+                }
+                break
+
+            case KEY_A:
+                if emulatorCore?.getDigitalMode() ?? false {
+                    emulatorCore?.updateInput(.left, false)
+                } else {
+                    emulatorCore?.setLeftX(0x80)
+                }
+                break
+            case KEY_D:
+                if emulatorCore?.getDigitalMode() ?? false {
+                    emulatorCore?.updateInput(.right, false)
+                } else {
+                    emulatorCore?.setLeftX(0x80)
+                }
+                break
+            default: break
+            }
         }
     }
 

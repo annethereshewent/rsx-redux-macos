@@ -33,6 +33,8 @@ enum PressedButton: UInt {
 class GameController {
     let eventListenerClosure: (GCController) -> Void
     private var engine: CHHapticEngine?
+    private var smallEngine: CHHapticEngine?
+    private var largeEngine: CHHapticEngine?
 
     var controller: GCController? = GCController()
 
@@ -63,17 +65,40 @@ class GameController {
     private func prepareHaptics() {
         if let controller = controller, let haptics = controller.haptics {
             do {
-                engine = haptics.createEngine(withLocality: .default)
-                try engine?.start()
+                if haptics.supportedLocalities.contains(.leftHandle) && haptics.supportedLocalities.contains(.rightHandle) {
+                    smallEngine = haptics.createEngine(withLocality: .leftHandle)
+                    largeEngine = haptics.createEngine(withLocality: .rightHandle)
+
+                    try smallEngine?.start()
+                    try largeEngine?.start()
+                } else {
+                    engine = haptics.createEngine(withLocality: .default)
+                    try engine?.start()
+                }
+
+
             } catch {
                 print(error)
             }
         }
     }
 
-    func rumble(intensity: Float, duration: TimeInterval) {
-        guard let engine else { return }
+    func handleRumble(smallEngineIntensity: Float, largeEngineIntensity: Float) {
+        if let smallEngine = smallEngine {
+            rumble(smallEngine, intensity: smallEngineIntensity, duration: 0.2)
+        }
+        if let largeEngine = largeEngine {
+            rumble(largeEngine, intensity: largeEngineIntensity, duration: 0.2)
+        }
 
+        if largeEngine == nil && smallEngine == nil {
+            if let engine = engine {
+                rumble(engine, intensity: max(smallEngineIntensity, largeEngineIntensity), duration: 0.2)
+            }
+        }
+    }
+
+    private func rumble(_ engine: CHHapticEngine, intensity: Float, duration: TimeInterval) {
         let intensity = CHHapticEventParameter(
             parameterID: .hapticIntensity,
             value: intensity
