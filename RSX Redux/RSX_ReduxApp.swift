@@ -94,6 +94,8 @@ struct RSX_ReduxApp: App {
 
         Settings {
             SettingsView()
+                .environmentObject(emulatorCore)
+                .frame(width: 1280, height: 960)
         }
     }
 

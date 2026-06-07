@@ -28,6 +28,7 @@ class EmulatorCore: ObservableObject {
     @Published private(set) var layer: CAMetalLayer
     private var initialized = false
     private var emulator: PsxMacEmulator?
+    private var selectedController: UInt8 = 0
     var isRunning = false
     @Published var biosLoaded = false
     @Published var showWaveForm = false
@@ -36,6 +37,9 @@ class EmulatorCore: ObservableObject {
     private let audioManager = AudioManager()
     var waveFormModel = WaveformModel()
     private var generationId = 0
+    private var vibration = false
+    private var digitalMode = false
+    private var memoryCard: String = ""
 
     private var gameUrl: URL?
     private var saveStateUrl: URL?
@@ -55,6 +59,12 @@ class EmulatorCore: ObservableObject {
         let ptr = Unmanaged.passUnretained(layer).toOpaque()
 
         emulator = PsxMacEmulator(ptr)
+        emulator!.switchSelectedController(selectedController)
+        emulator!.setDigitalMode(digitalMode)
+    }
+
+    func switchAudio(_ value: Bool) {
+        audioManager.playerPaused = !value
     }
 
     func startExe(exeUrl: URL) {
@@ -71,12 +81,26 @@ class EmulatorCore: ObservableObject {
         }
     }
 
+    func setMemoryCard(_ card: String) {
+        memoryCard = card
+    }
+
+    func switchSelectedController(controllerId: UInt8) {
+        selectedController = controllerId
+        emulator?.switchSelectedController(controllerId)
+    }
+
     func getDigitalMode() -> Bool {
         return emulator?.getDigitalMode() ?? false
     }
 
     func setDigitalMode(_ value: Bool) {
+        digitalMode = value
         emulator?.setDigitalMode(value)
+    }
+
+    func setVibration(_ vibration: Bool) {
+        self.vibration = vibration
     }
 
     func setMemoryCard() {
@@ -84,7 +108,7 @@ class EmulatorCore: ObservableObject {
 
         do {
             try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
-            url = url.appendingPathComponent("memory_card.mcd")
+            url = url.appendingPathComponent(memoryCard)
 
             if !FileManager.default.fileExists(atPath: url.path) {
                 FileManager.default.createFile(atPath: url.path, contents: Data(), attributes: nil)
@@ -140,15 +164,19 @@ class EmulatorCore: ObservableObject {
 
                     let samples = emulator.drainSamples()
 
-                    waveFormModel.push(samples: Array(samples))
-                    audioManager.updateBuffer(samples: samples)
+                    if !audioManager.playerPaused {
+                        waveFormModel.push(samples: Array(samples))
+                        audioManager.updateBuffer(samples: samples)
+                    }
 
-                    let (smallMotor, largeMotor) = emulator.getRumble()
-
-                    let smallIntensity: Float = smallMotor ? 0.15 : 0.0
-                    let largeIntensity = Float(largeMotor) / 255.0
-
-                    gameController?.handleRumble(smallEngineIntensity: smallIntensity, largeEngineIntensity: largeIntensity)
+                    if vibration {
+                        let (smallMotor, largeMotor) = emulator.getRumble()
+                        
+                        let smallIntensity: Float = smallMotor ? 0.15 : 0.0
+                        let largeIntensity = Float(largeMotor) / 255.0
+                        
+                        gameController?.handleRumble(smallEngineIntensity: smallIntensity, largeEngineIntensity: largeIntensity)
+                    }
                 }
             }
         }
