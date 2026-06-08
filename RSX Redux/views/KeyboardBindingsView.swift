@@ -46,6 +46,11 @@ let KEY_F4: UInt16 = 118
 let KEY_F5: UInt16 = 96
 let KEY_F7: UInt16 = 98
 
+let KEY_UP: UInt16 = 126
+let KEY_LEFT: UInt16 = 123
+let KEY_RIGHT: UInt16 = 124
+let KEY_DOWN: UInt16 = 125
+
 struct KeyboardBindingsView: View {
     @State private var currentButton: PressedButton?
     @EnvironmentObject var emulatorCore: EmulatorCore
@@ -53,10 +58,10 @@ struct KeyboardBindingsView: View {
 
     private func getKeyName(_ event: NSEvent) -> String? {
         switch event.keyCode {
-        case 126: return "Up"
-        case 123: return "Left"
-        case 125: return "Down"
-        case 124: return "Right"
+        case KEY_UP: return "Up"
+        case KEY_LEFT: return "Left"
+        case KEY_DOWN: return "Down"
+        case KEY_RIGHT: return "Right"
         default: break
         }
 
