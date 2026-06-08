@@ -9,6 +9,7 @@ import SwiftUI
 
 struct KeyboardBindingsView: View {
     @Binding var showKeyboardBindings: Bool
+    @State private var keyDict: [String:Int] = [:]
     var body: some View {
         VStack {
             HStack(alignment: .center, spacing: 32) {
@@ -18,26 +19,14 @@ struct KeyboardBindingsView: View {
                     MappingGroup(title: "D-Pad") {
                         VStack {
                             HStack {
-                                Spacer()
-                                    .frame(width: 5)
-                                    .fixedSize()
                                 MappingButton(title: "Up", binding: "W")
-                                Spacer()
-                                    .frame(width: 5)
-                                    .fixedSize()
                             }
                             HStack {
                                 MappingButton(title: "Left", binding: "A")
                                 MappingButton(title: "Right", binding: "D")
                             }
                             HStack {
-                                Spacer()
-                                    .frame(width: 5)
-                                    .fixedSize()
                                 MappingButton(title: "Down", binding: "S")
-                                Spacer()
-                                    .frame(width: 5)
-                                    .fixedSize()
                             }
                         }
                     }
@@ -78,26 +67,14 @@ struct KeyboardBindingsView: View {
                     MappingGroup(title: "Face Buttons") {
                         VStack {
                             HStack {
-                                Spacer()
-                                    .frame(width: 10)
-                                    .fixedSize()
                                 MappingButton(title: "Triangle", binding: "I")
-                                Spacer()
-                                    .frame(width: 10)
-                                    .fixedSize()
                             }
                             HStack {
                                 MappingButton(title: "Square", binding: "J")
                                 MappingButton(title: "Circle", binding: "L")
                             }
                             HStack {
-                                Spacer()
-                                    .frame(width: 10)
-                                    .fixedSize()
                                 MappingButton(title: "Cross", binding: "K")
-                                Spacer()
-                                    .frame(width: 10)
-                                    .fixedSize()
                             }
                         }
                     }
@@ -120,4 +97,9 @@ struct KeyboardBindingsView: View {
         }
         .padding(.top, 40)
     }
+}
+
+#Preview {
+    @Previewable @State var showKeyboardBindings: Bool = true
+    KeyboardBindingsView(showKeyboardBindings: $showKeyboardBindings)
 }

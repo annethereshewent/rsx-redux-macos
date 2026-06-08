@@ -38,7 +38,7 @@ class EmulatorCore: ObservableObject {
     var waveFormModel = WaveformModel()
     private var generationId = 0
     private var vibration = false
-    private var digitalMode = false
+    private var controllerMode: ControllerMode = .auto
     private var memoryCard: String = "memory_card.mcd"
 
     private var gameUrl: URL?
@@ -51,6 +51,30 @@ class EmulatorCore: ObservableObject {
         metalLayer.framebufferOnly = true
 
         layer = metalLayer
+
+        let userDefaults = UserDefaults.standard
+
+        if userDefaults.object(forKey: "selectedController") != nil {
+            self.selectedController = UInt8(userDefaults.integer(forKey: "selectedController"))
+        }
+
+        if userDefaults.object(forKey: "vibration") != nil {
+            vibration = userDefaults.bool(forKey: "vibration")
+        }
+        if let memoryCard = userDefaults.string(forKey: "memoryCard") {
+            self.memoryCard = memoryCard
+        }
+        if userDefaults.object(forKey: "playAudio") != nil {
+            let playAudio = userDefaults.bool(forKey: "playAudio")
+            switchAudio(playAudio)
+        }
+        if let controllerMode = userDefaults.string(forKey: "controllerMode") {
+            do {
+                self.controllerMode = try JSONDecoder().decode(ControllerMode.self, from: controllerMode.data(using: .utf8)!)
+            } catch {
+                print(error)
+            }
+        }
     }
 
     func initialize() {
@@ -60,7 +84,7 @@ class EmulatorCore: ObservableObject {
 
         emulator = PsxMacEmulator(ptr)
         emulator!.switchSelectedController(selectedController)
-        emulator!.setDigitalMode(digitalMode)
+        setControllerMode(controllerMode)
     }
 
     func switchAudio(_ value: Bool) {
@@ -95,8 +119,19 @@ class EmulatorCore: ObservableObject {
     }
 
     func setDigitalMode(_ value: Bool) {
-        digitalMode = value
         emulator?.setDigitalMode(value)
+    }
+
+    func setControllerMode(_ controllerMode: ControllerMode) {
+        switch controllerMode {
+        case .analog:
+            emulator?.setDigitalMode(false)
+            break
+        case .digital:
+            emulator?.setDigitalMode(true)
+            break
+        case .auto: break
+        }
     }
 
     func setVibration(_ vibration: Bool) {
