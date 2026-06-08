@@ -118,6 +118,12 @@ class EmulatorCore: ObservableObject {
             }  else {
                 emulator?.updateInput(button.rawValue, pressed)
             }
+        } else if keyCode == KEY_F4 && !pressed {
+            showWaveForm.toggle()
+        } else if keyCode == KEY_F5 && !pressed {
+            saveQuickState()
+        } else if keyCode == KEY_F7 && !pressed {
+            loadQuickState()
         }
     }
 
