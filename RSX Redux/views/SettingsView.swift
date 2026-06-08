@@ -103,6 +103,7 @@ struct SettingsView: View {
                     .font(.largeTitle)
                     .bold()
                 KeyboardBindingsView(showKeyboardBindings: $showKeyboardBindings)
+                    .environmentObject(emulatorCore)
             }
         }
         .onChange(of: selectedController) {

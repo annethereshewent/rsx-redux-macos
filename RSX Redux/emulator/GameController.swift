@@ -10,7 +10,7 @@ import GameController
 import PSXMacEmulator
 import CoreHaptics
 
-enum PressedButton: UInt {
+enum PressedButton: UInt, Codable {
     case circle = 13
     case cross = 14
     case triangle = 12
@@ -27,6 +27,7 @@ enum PressedButton: UInt {
     case down = 6
     case left = 7
     case right = 5
+    case analog = 16
 }
 
 @Observable

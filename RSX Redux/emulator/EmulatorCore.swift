@@ -40,6 +40,29 @@ class EmulatorCore: ObservableObject {
     private var vibration = false
     private var controllerMode: ControllerMode = .auto
     private var memoryCard: String = "memory_card.mcd"
+    private var buttonDict: [UInt16: PressedButton] = [
+        KEY_W: .up,
+        KEY_S: .down,
+        KEY_A: .right,
+        KEY_D: .left,
+
+        KEY_I: .triangle,
+        KEY_K: .cross,
+        KEY_J: .square,
+        KEY_L: .circle,
+
+        KEY_ENTER: .start,
+        KEY_TAB: .select,
+
+        KEY_U: .l1,
+        KEY_O: .r1,
+        KEY_7: .l2,
+        KEY_9: .r2,
+
+        LEFT_SHIFT: .leftStick,
+        RIGHT_SHIFT: .rightStick
+    ]
+
 
     private var gameUrl: URL?
     private var saveStateUrl: URL?
@@ -68,12 +91,56 @@ class EmulatorCore: ObservableObject {
             let playAudio = userDefaults.bool(forKey: "playAudio")
             switchAudio(playAudio)
         }
-        if let controllerMode = userDefaults.string(forKey: "controllerMode") {
+        if let controllerMode = userDefaults.object(forKey: "controllerMode") {
             do {
-                self.controllerMode = try JSONDecoder().decode(ControllerMode.self, from: controllerMode.data(using: .utf8)!)
+                self.controllerMode = try JSONDecoder().decode(ControllerMode.self, from: controllerMode as! Data)
             } catch {
                 print(error)
             }
+        }
+    }
+
+    func onKeyInput(_ keyCode: UInt16, _ pressed: Bool) {
+        if let button = buttonDict[keyCode] {
+            if [.up, .down, .left, .right].contains(button) {
+                handleDirectionalButton(button, pressed)
+            } else {
+                emulator?.updateInput(button.rawValue, pressed)
+            }
+        }
+    }
+
+    func handleDirectionalButton(_ button: PressedButton, _ pressed: Bool) {
+        if getDigitalMode() {
+            updateInput(button, pressed)
+        } else {
+            switch button {
+            case .up:
+                let value = pressed ? 0x0 : 0x80
+                setLeftY(UInt8(value))
+                break
+            case .down:
+                let value = pressed ? 0xff : 0x80
+                setLeftY(UInt8(value))
+                break
+
+            case .left:
+                let value = pressed ? 0x0 : 0x80
+                setLeftX(UInt8(value))
+                break
+            case .right:
+                let value = pressed ? 0xff : 0x80
+                setLeftX(UInt8(value))
+                break
+            default: break
+            }
+        }
+    }
+
+    func updateBindings(_ keyDict: [PressedButton:KeyBinding]) {
+        buttonDict = [:]
+        for (key, value) in keyDict {
+            buttonDict[value.keyCode] = key
         }
     }
 

@@ -11,6 +11,7 @@ import SwiftUI
 
 class KeyCaptureView: NSView {
     var onKeyDown: ((NSEvent) -> Void)?
+    var onFlagsChanged: ((NSEvent) -> Void)?
 
     override var acceptsFirstResponder: Bool {
         true
@@ -19,14 +20,20 @@ class KeyCaptureView: NSView {
     override func keyDown(with event: NSEvent) {
         onKeyDown?(event)
     }
+
+    override func flagsChanged(with event: NSEvent) {
+        onFlagsChanged?(event)
+    }
 }
 
 struct KeyCaptureRepresentable: NSViewRepresentable {
     let onKeyDown: (NSEvent) -> Void
+    let onFlagsChanged: (NSEvent) -> Void
 
     func makeNSView(context: Context) -> KeyCaptureView {
         let view = KeyCaptureView()
         view.onKeyDown = onKeyDown
+        view.onFlagsChanged = onFlagsChanged
 
         DispatchQueue.main.async {
             view.window?.makeFirstResponder(view)
