@@ -147,7 +147,6 @@ struct ContentView: View {
         if !touchpadLatch && pressed {
             touchpadLatch = true
         } else if touchpadLatch && !pressed {
-            print("toggling digital mode!")
             emulatorCore.toggleDigitalMode()
             Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { _ in
                 self.touchpadLatch = false

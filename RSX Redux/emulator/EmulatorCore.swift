@@ -98,13 +98,24 @@ class EmulatorCore: ObservableObject {
                 print(error)
             }
         }
+
+        if let data = userDefaults.object(forKey: "keyDict") {
+            do {
+                let decoded = try JSONDecoder().decode([PressedButton:KeyBinding].self, from: data as! Data)
+                updateBindings(decoded)
+            } catch {
+                print(error)
+            }
+        }
     }
 
     func onKeyInput(_ keyCode: UInt16, _ pressed: Bool) {
         if let button = buttonDict[keyCode] {
             if [.up, .down, .left, .right].contains(button) {
                 handleDirectionalButton(button, pressed)
-            } else {
+            } else if button == .analog && pressed {
+                toggleDigitalMode()
+            }  else {
                 emulator?.updateInput(button.rawValue, pressed)
             }
         }
@@ -298,6 +309,7 @@ class EmulatorCore: ObservableObject {
     }
 
     func toggleDigitalMode() {
+        print("toggling digital mode!")
         emulator?.toggleDigitalMode()
     }
 
