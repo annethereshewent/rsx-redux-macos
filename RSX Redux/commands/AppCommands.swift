@@ -21,10 +21,18 @@ struct AppCommands: Commands {
     @Binding var showDialog: Bool
     @Binding var fileType: FileType?
 
+    private var sortedGames: [Game] {
+        let sortedGames = games.sorted {
+            $0.lastPlayed > $1.lastPlayed
+        }
+
+        return Array(sortedGames.prefix(10))
+    }
+
     var body: some Commands {
         CommandGroup(after: .newItem) {
             Menu("Open Recent") {
-                ForEach(games, id: \.gameName) { game in
+                ForEach(sortedGames, id: \.gameName) { game in
                     Button(game.gameName) {
                         if let biosUrl = currentBiosUrl {
                             var stale = false
@@ -35,6 +43,10 @@ struct AppCommands: Commands {
                                     relativeTo: nil,
                                     bookmarkDataIsStale: &stale
                                 )
+
+                                game.lastPlayed = Date()
+
+                                try? context.save()
 
                                 currentGame = game
 

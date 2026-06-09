@@ -215,6 +215,10 @@ struct ContentView: View {
 
                         if let index = games.firstIndex(where: { $0.gameName == gameName }) {
                             currentGame = games[index]
+
+                            currentGame!.lastPlayed = Date()
+
+                            try? context.save()
                         } else {
                             do {
                                 guard url.startAccessingSecurityScopedResource() else { return }
