@@ -19,15 +19,21 @@ This emulator has the following features:
 * Save states, including quick save states with function keys
 * Waveform visualizer
 * Controller support
-* Keyboard support
+* Keyboard support with mappable controls
 * Vibration support with compatible controllers
+* Support for multiple memory cards (up to 5)
 
 Coming soon:
 
 * Cloud saves
-* Ability to switch controller ports
-* Customizable controls
    
 ## Controls
 
-See https://github.com/annethereshewent/rsx-redux for keyboard mappings. Controls on controllers are effectively the same mappings as on the playstation 1 controller for DualShock 3, 4 and Dualsense controllers. For Xbox controllers, mappings are the equivalent version (ie: "A" maps to "Cross," "B" maps to "Circle," and so on)
+Controls are mappable under settings for the keyboard. For controllers like Dualshock 4 and Dualsense, mappings should be exactly the same as the PSX. for controllers like the Xbox 360, they translate very similar, such as:
+
+- **A button** -> cross button
+- **B button** -> circle button
+- **Y button** -> triangle button
+- **X button** ->  square button
+
+shoulder buttons, triggers, directional pad, start and select should all be practically the same as the PS1.
