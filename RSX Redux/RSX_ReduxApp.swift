@@ -93,7 +93,9 @@ struct RSX_ReduxApp: App {
         .modelContainer(for: [Game.self, SaveState.self])
 
         Settings {
-            SettingsView()
+            SettingsView(currentGame: $currentGame)
+                .environmentObject(emulatorCore)
+                .frame(width: 1280, height: 960)
         }
     }
 
