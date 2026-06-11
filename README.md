@@ -1,6 +1,6 @@
 # RSX Redux for MacOS
 
-This is the desktop wrapper for https://github.com/annethereshewent/rsx-redux. To install: 
+This is the desktop wrapper for https://github.com/annethereshewent/rsx-redux. A release is now available in the [releases](https://github.com/annethereshewent/rsx-redux-macos/releases) section. To compile: 
 
 1. Install swift-bridge-cli with the following command: `cargo install -f swift-bridge-cli`
 2. Clone the repository with `git clone --recurse-submodules`.
