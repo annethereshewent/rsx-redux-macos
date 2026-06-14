@@ -181,7 +181,11 @@ class EmulatorCore: ObservableObject {
                 defer {
                     exeUrl.stopAccessingSecurityScopedResource()
                 }
-                
+
+                if !audioManager.isRunning {
+                    audioManager.startAudio()
+                }
+
                 emulator.startExe(exeUrl.path)
 
                 mainLoop()
