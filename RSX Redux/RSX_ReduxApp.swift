@@ -21,6 +21,7 @@ struct RSX_ReduxApp: App {
     @State private var currentBiosUrl: URL?
     @State private var fileType: FileType?
     @State private var initialize = false
+    @State private var isSwap = false
     @State private var currentGame: Game?
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
@@ -33,6 +34,7 @@ struct RSX_ReduxApp: App {
                 currentDiscUrl: $currentDiscUrl,
                 currentBiosUrl: $currentBiosUrl,
                 initialize: $initialize,
+                isSwap: $isSwap,
                 currentGame: $currentGame,
                 showDialog: $showDialog,
                 fileType: $fileType
@@ -71,6 +73,7 @@ struct RSX_ReduxApp: App {
                 currentBiosUrl: $currentBiosUrl,
                 currentGame: $currentGame,
                 initialize: $initialize,
+                isSwap: $isSwap,
                 showDialog: $showDialog,
                 fileType: $fileType
             )
