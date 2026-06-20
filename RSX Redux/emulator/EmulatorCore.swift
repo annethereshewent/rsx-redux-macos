@@ -193,6 +193,22 @@ class EmulatorCore: ObservableObject {
         }
     }
 
+    func openShell() {
+        emulator?.openShell()
+    }
+
+    func closeShell(url: URL) {
+        if url.startAccessingSecurityScopedResource() {
+            defer {
+                url.stopAccessingSecurityScopedResource()
+            }
+
+            emulator?.closeShell(url.path)
+            
+        }
+
+    }
+
     func setMemoryCard(_ card: String) {
         memoryCard = card
     }

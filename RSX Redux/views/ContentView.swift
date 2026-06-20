@@ -17,6 +17,7 @@ struct ContentView: View {
     @Binding var currentDiscUrl: URL?
     @Binding var currentBiosUrl: URL?
     @Binding var initialize: Bool
+    @Binding var isSwap: Bool
     @Binding var currentGame: Game?
     @Binding var showDialog: Bool
     @Binding var fileType: FileType?
@@ -263,6 +264,8 @@ struct ContentView: View {
                                     }
                                 }
                             }
+                        } else if isSwap {
+                            emulatorCore.closeShell(url: url)
                         } else {
                             emulatorCore.mainLoop()
                         }

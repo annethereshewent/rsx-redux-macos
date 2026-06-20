@@ -18,6 +18,7 @@ struct AppCommands: Commands {
     @Binding var currentBiosUrl: URL?
     @Binding var currentGame: Game?
     @Binding var initialize: Bool
+    @Binding var isSwap: Bool
     @Binding var showDialog: Bool
     @Binding var fileType: FileType?
 
@@ -72,15 +73,18 @@ struct AppCommands: Commands {
             Button("Open") {
                 initialize = true
                 showDialog = true
+                isSwap = false
                 fileType = .disc
             }
             .keyboardShortcut("o", modifiers: [.command])
             .disabled(!emulatorCore.biosLoaded)
         }
         CommandGroup(after: .newItem) {
-            Button("Load Disc (for current game)") {
+            Button("Swap disc") {
+                emulatorCore.openShell()
                 initialize = false
                 showDialog = true
+                isSwap = true
                 fileType = .disc
             }
             .disabled(currentGame == nil)
@@ -90,6 +94,7 @@ struct AppCommands: Commands {
                 showDialog = true
                 fileType = .bios
             }
+            .disabled(currentGame != nil)
         }
         CommandGroup(after: .newItem) {
             Button("Load State") {
