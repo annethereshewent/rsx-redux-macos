@@ -94,6 +94,7 @@ struct AppCommands: Commands {
                 showDialog = true
                 fileType = .bios
             }
+            .disabled(currentGame != nil)
         }
         CommandGroup(after: .newItem) {
             Button("Load State") {
