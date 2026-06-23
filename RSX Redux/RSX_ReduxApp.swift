@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import GoogleSignIn
 
 enum FileType {
     case disc
@@ -23,6 +24,8 @@ struct RSX_ReduxApp: App {
     @State private var initialize = false
     @State private var isSwap = false
     @State private var currentGame: Game?
+    @State private var user: GIDGoogleUser?
+
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     @Environment(\.openWindow) private var openWindow
@@ -37,7 +40,8 @@ struct RSX_ReduxApp: App {
                 isSwap: $isSwap,
                 currentGame: $currentGame,
                 showDialog: $showDialog,
-                fileType: $fileType
+                fileType: $fileType,
+                user: $user
             )
                 .environmentObject(emulatorCore)
                 .onAppear {
@@ -96,7 +100,7 @@ struct RSX_ReduxApp: App {
         .modelContainer(for: [Game.self, SaveState.self])
 
         Settings {
-            SettingsView(currentGame: $currentGame)
+            SettingsView(currentGame: $currentGame, user: $user)
                 .environmentObject(emulatorCore)
                 .frame(width: 1280, height: 960)
         }

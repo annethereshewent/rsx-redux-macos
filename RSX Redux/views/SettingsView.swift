@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import GoogleSignInSwift
+import GoogleSignIn
 
 enum ControllerMode: Codable {
     case auto
@@ -16,6 +18,7 @@ enum ControllerMode: Codable {
 struct SettingsView: View {
     @EnvironmentObject private var emulatorCore: EmulatorCore
     @Binding var currentGame: Game?
+    @Binding var user: GIDGoogleUser?
     @State private var selectedController: UInt8 = 0
     @State private var controllerMode: ControllerMode = .auto
     @State private var vibration = true
@@ -92,6 +95,20 @@ struct SettingsView: View {
                             .disabled(currentGame != nil)
                         }
                     }
+
+                    settingsSection("Cloud Saves") {
+                        settingsRow("Google Account") {
+                            if let user = user {
+                                Button("Sign out of \(user.profile?.email ?? "user account")") {
+                                    handleSignOut()
+                                }
+                            } else {
+                                Button("Sign in") {
+                                    handleSignInButton()
+                                }
+                            }
+                        }
+                    }
                 }
                 .padding(32)
             }
@@ -104,6 +121,31 @@ struct SettingsView: View {
                     .environmentObject(emulatorCore)
             }
         }
+    }
+
+    private func handleSignInButton() {
+        guard let presenting = NSApplication.shared.keyWindow else {
+            return
+        }
+        GIDSignIn.sharedInstance.signIn(
+            withPresenting: presenting)
+        { signInResult, error in
+            guard let result = signInResult	else {
+                print(error!)
+                return
+            }
+
+            print("sign in succeeded!")
+            user = result.user
+        }
+    }
+
+    private func handleSignOut() {
+        guard let presenting = NSApplication.shared.keyWindow else {
+            return
+        }
+        GIDSignIn.sharedInstance.signOut()
+        user = nil
     }
 
     @ViewBuilder

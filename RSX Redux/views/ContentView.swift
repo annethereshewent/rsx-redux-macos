@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 import GameController
 import UniformTypeIdentifiers
+import GoogleSignIn
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -21,6 +22,7 @@ struct ContentView: View {
     @Binding var currentGame: Game?
     @Binding var showDialog: Bool
     @Binding var fileType: FileType?
+    @Binding var user: GIDGoogleUser?
     @State private var gameController: GameController?
     @State private var touchpadLatch = false
 
@@ -190,6 +192,18 @@ struct ContentView: View {
             .onAppear() {
                 emulatorCore.gameController = GameController() { controller in
                     addControllerEventListeners(controller)
+                }
+                GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
+                    if let signedInUser = user {
+                        self.user = signedInUser
+
+                        self.user?.refreshTokensIfNeeded { user, error in
+                            guard error == nil else { return }
+                            guard let user = user else { return }
+
+                            self.user = user
+                        }
+                    }
                 }
             }
             .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!, exeType!] ) { result in
