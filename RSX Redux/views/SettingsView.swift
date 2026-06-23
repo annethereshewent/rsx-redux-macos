@@ -87,7 +87,7 @@ struct SettingsView: View {
                     }
 
                     settingsSection("System") {
-                        settingsRow("Memory Card") {
+                        settingsRow("Selected Memory Card") {
                             Picker("", selection: $memoryCard) {
                                 Text("Memory Card 1").tag("memory_card1.mcd")
                                 Text("Memory Card 2").tag("memory_card2.mcd")
