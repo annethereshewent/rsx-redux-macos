@@ -17,6 +17,7 @@ enum ControllerMode: Codable {
 
 struct SettingsView: View {
     @EnvironmentObject private var emulatorCore: EmulatorCore
+    @Binding var cloudService: CloudService?
     @Binding var currentGame: Game?
     @Binding var user: GIDGoogleUser?
     @State private var selectedController: UInt8 = 0
@@ -24,7 +25,10 @@ struct SettingsView: View {
     @State private var vibration = true
     @State private var showKeyboardBindings = false
     @State private var playAudio = true
-    @State private var memoryCard: String = "memory_card.mcd"
+    @State private var memoryCard = "memory_card1.mcd"
+    @State private var cloudCard = "memory_card1.mcd"
+    @State private var cardLastUpdated = ""
+    @State private var cardFound = false
     private let userDefaults = UserDefaults.standard
 
     var body: some View {
@@ -85,7 +89,7 @@ struct SettingsView: View {
                     settingsSection("System") {
                         settingsRow("Memory Card") {
                             Picker("", selection: $memoryCard) {
-                                Text("Memory Card 1").tag("memory_card.mcd")
+                                Text("Memory Card 1").tag("memory_card1.mcd")
                                 Text("Memory Card 2").tag("memory_card2.mcd")
                                 Text("Memory Card 3").tag("memory_card3.mcd")
                                 Text("Memory Card 4").tag("memory_card4.mcd")
@@ -108,6 +112,49 @@ struct SettingsView: View {
                                 }
                             }
                         }
+                        if let _ = user {
+                            Divider()
+                            settingsRow("Manage memory card")  {
+                                Picker("", selection: $cloudCard) {
+                                    Text("Memory Card 1").tag("memory_card1.mcd")
+                                    Text("Memory Card 2").tag("memory_card2.mcd")
+                                    Text("Memory Card 3").tag("memory_card3.mcd")
+                                    Text("Memory Card 4").tag("memory_card4.mcd")
+                                    Text("Memory Card 5").tag("memory_card5.mcd")
+                                }
+                            }
+                            if cardFound {
+                                settingsRow("Cloud: \(cardLastUpdated)") {
+                                    Button() {
+
+                                    } label: {
+                                        Image(systemName: "icloud.and.arrow.up")
+                                            .foregroundColor(.accentColor)
+                                    }
+                                    .help("Upload to cloud")
+                                    Button() {
+
+                                    } label: {
+                                        Image(systemName: "icloud.and.arrow.down")
+                                            .foregroundColor(.accentColor)
+                                    }
+                                    .help("Download from cloud")
+                                    Button() {
+
+                                    } label: {
+                                        Image(systemName: "trash")
+                                            .foregroundColor(.accentColor)
+                                    }
+                                    .help("Delete from cloud")
+                                }
+                            }
+                        }
+                    }
+                    .onAppear {
+                        updateCardLastUpdated()
+                    }
+                    .onChange(of: cloudCard) {
+                        updateCardLastUpdated()
                     }
                 }
                 .padding(32)
@@ -119,6 +166,24 @@ struct SettingsView: View {
                     .bold()
                 KeyboardBindingsView(showKeyboardBindings: $showKeyboardBindings)
                     .environmentObject(emulatorCore)
+            }
+        }
+    }
+
+    func updateCardLastUpdated() {
+        cardFound = false
+        if let cloudService = cloudService {
+            Task {
+                if let info = await cloudService.getCardInfo(cloudCard) {
+                    if info.files.count > 0, let date = info.files[0].modifiedTime {
+                        let dateFormatter = ISO8601DateFormatter()
+                        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                        let date = dateFormatter.date(from: date)
+
+                        cardLastUpdated = date?.formatted() ?? ""
+                        cardFound = true
+                    }
+                }
             }
         }
     }
@@ -135,15 +200,11 @@ struct SettingsView: View {
                 return
             }
 
-            print("sign in succeeded!")
             user = result.user
         }
     }
 
     private func handleSignOut() {
-        guard let presenting = NSApplication.shared.keyWindow else {
-            return
-        }
         GIDSignIn.sharedInstance.signOut()
         user = nil
     }
