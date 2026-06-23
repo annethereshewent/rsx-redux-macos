@@ -25,80 +25,78 @@ struct SettingsView: View {
     private let userDefaults = UserDefaults.standard
 
     var body: some View {
-        VStack {
-            if !showKeyboardBindings {
-                Text("Settings")
-                    .font(.largeTitle)
-                    .bold()
-                Text("Controller")
-                    .font(.title)
-                    .bold()
-                HStack {
-                    Spacer()
-                    Picker("Selected Controller", selection: $selectedController) {
-                        Text("Port 1").tag(UInt8(0))
-                        Text("Port 2").tag(UInt8(1))
+        if !showKeyboardBindings {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Settings")
+                        .font(.largeTitle)
+                        .bold()
+                        .padding(.bottom, 24)
+
+                    settingsSection("Controller") {
+                        settingsRow("Selected Controller") {
+                            Picker("", selection: $selectedController) {
+                                Text("Port 1").tag(UInt8(0))
+                                Text("Port 2").tag(UInt8(1))
+                            }
+                            .pickerStyle(.radioGroup)
+                            .horizontalRadioGroupLayout()
+                        }
+                        Divider()
+                        settingsRow("Controller Mode") {
+                            Picker("", selection: $controllerMode) {
+                                Text("Auto").tag(ControllerMode.auto)
+                                Text("Digital").tag(ControllerMode.digital)
+                                Text("Analog").tag(ControllerMode.analog)
+                            }
+                            .frame(width: 120)
+                        }
+                        Divider()
+                        settingsRow("Vibration") {
+                            Picker("", selection: $vibration) {
+                                Text("On").tag(true)
+                                Text("Off").tag(false)
+                            }
+                            .pickerStyle(.radioGroup)
+                            .horizontalRadioGroupLayout()
+                        }
+                        Divider()
+                        settingsRow("Keyboard Bindings") {
+                            Button("Configure…") {
+                                showKeyboardBindings = true
+                            }
+                        }
                     }
-                    .pickerStyle(.radioGroup)
-                    .horizontalRadioGroupLayout()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                HStack {
-                    Spacer()
-                    Picker("Controller mode", selection: $controllerMode) {
-                        Text("Auto").tag(ControllerMode.auto)
-                        Text("Digital mode").tag(ControllerMode.digital)
-                        Text("Analog mode").tag(ControllerMode.analog)
+
+                    settingsSection("Audio") {
+                        settingsRow("Playback") {
+                            Picker("", selection: $playAudio) {
+                                Text("On").tag(true)
+                                Text("Off").tag(false)
+                            }
+                            .pickerStyle(.radioGroup)
+                            .horizontalRadioGroupLayout()
+                        }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                HStack {
-                    Spacer()
-                    Picker("Vibration", selection: $vibration) {
-                        Text("On").tag(true)
-                        Text("Off").tag(false)
+
+                    settingsSection("System") {
+                        settingsRow("Memory Card") {
+                            Picker("", selection: $memoryCard) {
+                                Text("Memory Card 1").tag("memory_card.mcd")
+                                Text("Memory Card 2").tag("memory_card2.mcd")
+                                Text("Memory Card 3").tag("memory_card3.mcd")
+                                Text("Memory Card 4").tag("memory_card4.mcd")
+                                Text("Memory Card 5").tag("memory_card5.mcd")
+                            }
+                            .frame(width: 160)
+                            .disabled(currentGame != nil)
+                        }
                     }
-                    .pickerStyle(.radioGroup)
-                    .horizontalRadioGroupLayout()
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                HStack {
-                    Spacer()
-                    Button("Keyboard bindings") {
-                        showKeyboardBindings = true
-                    }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                }
-                Text("Audio")
-                    .font(.title)
-                    .bold()
-                HStack {
-                    Spacer()
-                    Picker("Audio", selection: $playAudio) {
-                        Text("On").tag(true)
-                        Text("Off").tag(false)
-                    }
-                    .pickerStyle(.radioGroup)
-                    .horizontalRadioGroupLayout()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                Text("System")
-                    .font(.title)
-                    .bold()
-                HStack {
-                    Spacer()
-                    Picker("Current memory card", selection: $memoryCard) {
-                        Text("Memory card 1").tag("memory_card.mcd")
-                        Text("Memory card 2").tag("memory_card2.mcd")
-                        Text("Memory card 3").tag("memory_card3.mcd")
-                        Text("Memory card 4").tag("memory_card4.mcd")
-                        Text("Memory card 5").tag("memory_card5.mcd")
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .disabled(currentGame != nil)
-                }
-                Spacer()
-            } else {
+                .padding(32)
+            }
+        } else {
+            VStack {
                 Text("Controller Settings")
                     .font(.largeTitle)
                     .bold()
@@ -106,53 +104,43 @@ struct SettingsView: View {
                     .environmentObject(emulatorCore)
             }
         }
-        .onChange(of: selectedController) {
-            userDefaults.set(selectedController, forKey: "selectedController")
-            emulatorCore.switchSelectedController(controllerId: selectedController)
-        }
-        .onChange(of: vibration) {
-            userDefaults.set(vibration, forKey: "vibration")
-            emulatorCore.setVibration(vibration)
-        }
-        .onChange(of: controllerMode) {
-            do {
-                let encoded = try JSONEncoder().encode(controllerMode)
-                userDefaults.set(encoded, forKey: "controllerMode")
-            } catch {
-                print(error)
-            }
-            emulatorCore.setControllerMode(controllerMode)
-        }
-        .onChange(of: playAudio) {
-            userDefaults.set(playAudio, forKey: "playAudio")
-            emulatorCore.switchAudio(playAudio)
-        }
-        .onChange(of: memoryCard) {
-            userDefaults.set(memoryCard, forKey: "memoryCard")
-            emulatorCore.setMemoryCard(memoryCard)
-        }
-        .onAppear {
-            if userDefaults.object(forKey: "selectedController") != nil {
-                self.selectedController = UInt8(userDefaults.integer(forKey: "selectedController"))
-            }
+    }
 
-            if userDefaults.object(forKey: "vibration") != nil {
-                vibration = userDefaults.bool(forKey: "vibration")
+    @ViewBuilder
+    private func settingsSection<Content: View>(
+        _ title: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(title.uppercased())
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.secondary)
+                .padding(.bottom, 6)
+
+            VStack(spacing: 0) {
+                content()
             }
-            if let memoryCard = userDefaults.string(forKey: "memoryCard") {
-                self.memoryCard = memoryCard
-            }
-            if userDefaults.object(forKey: "playAudio") != nil {
-                playAudio = userDefaults.bool(forKey: "playAudio")
-            }
-            if let controllerModeData = userDefaults.object(forKey: "controllerMode") {
-                do {
-                    let controllerMode = try JSONDecoder().decode(ControllerMode.self, from: controllerModeData as! Data)
-                    self.controllerMode = controllerMode
-                } catch {
-                    print(error)
-                }
-            }
+            .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(.separator, lineWidth: 0.5)
+            )
         }
+        .padding(.bottom, 24)
+    }
+
+    @ViewBuilder
+    private func settingsRow<Content: View>(
+        _ label: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        HStack {
+            Text(label)
+                .foregroundStyle(.primary)
+            Spacer()
+            content()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
     }
 }
