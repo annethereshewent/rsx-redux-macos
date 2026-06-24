@@ -9,11 +9,11 @@ import SwiftUI
 import SwiftData
 import GameController
 import UniformTypeIdentifiers
+import GoogleSignIn
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var emulatorCore: EmulatorCore
-
     @Binding var currentDiscUrl: URL?
     @Binding var currentBiosUrl: URL?
     @Binding var initialize: Bool
@@ -21,6 +21,7 @@ struct ContentView: View {
     @Binding var currentGame: Game?
     @Binding var showDialog: Bool
     @Binding var fileType: FileType?
+    @Binding var user: GIDGoogleUser?
     @State private var gameController: GameController?
     @State private var touchpadLatch = false
 
@@ -191,6 +192,21 @@ struct ContentView: View {
                 emulatorCore.gameController = GameController() { controller in
                     addControllerEventListeners(controller)
                 }
+                GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
+                    if let signedInUser = user {
+                        self.user = signedInUser
+
+                        emulatorCore.cloudService = CloudService(user: signedInUser)
+
+                        self.user?.refreshTokensIfNeeded { user, error in
+                            guard error == nil else { return }
+                            guard let user = user else { return }
+
+                            self.user = user
+                            emulatorCore.cloudService?.user = user
+                        }
+                    }
+                }
             }
             .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!, exeType!] ) { result in
                 if let url = try? result.get() {
@@ -253,14 +269,18 @@ struct ContentView: View {
                                         if let biosUrl = currentBiosUrl {
                                             emulatorCore.initialize()
                                             emulatorCore.loadBios(biosUrl: biosUrl)
-                                            emulatorCore.startEmulator(gameUrl: url)
+                                            Task {
+                                                await emulatorCore.startEmulator(gameUrl: url)
+                                            }
                                         }
                                     }
                                 } else {
                                     if let biosUrl = currentBiosUrl {
                                         emulatorCore.initialize()
                                         emulatorCore.loadBios(biosUrl: biosUrl)
-                                        emulatorCore.startEmulator(gameUrl: url)
+                                        Task {
+                                            await emulatorCore.startEmulator(gameUrl: url)
+                                        }
                                     }
                                 }
                             }

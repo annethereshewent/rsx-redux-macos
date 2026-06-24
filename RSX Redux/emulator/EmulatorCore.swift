@@ -32,6 +32,7 @@ class EmulatorCore: ObservableObject {
     var isRunning = false
     @Published var biosLoaded = false
     @Published var showWaveForm = false
+    @Published var cloudService: CloudService? = nil
     var gameController: GameController? = nil
     private let emuQueue = DispatchQueue(label: "rsx-redux.emu", qos: .userInteractive)
     private let audioManager = AudioManager()
@@ -39,7 +40,7 @@ class EmulatorCore: ObservableObject {
     private var generationId = 0
     private var vibration = false
     private var controllerMode: ControllerMode = .auto
-    private var memoryCard: String = "memory_card.mcd"
+    private var memoryCard: String = "memory_card1.mcd"
     private var buttonDict: [UInt16: PressedButton] = [
         KEY_W: .up,
         KEY_S: .down,
@@ -211,6 +212,24 @@ class EmulatorCore: ObservableObject {
 
     func setMemoryCard(_ card: String) {
         memoryCard = card
+
+        if let cloudService = cloudService {
+            Task {
+                if let data = await cloudService.getCard(card) {
+                    setMemoryBytes(data)
+                }
+            }
+        } else {
+            setMemoryCard()
+        }
+    }
+
+    func setMemoryBytes(_ bytes: Data) {
+        let bytesArr = Array(bytes)
+
+        bytesArr.withUnsafeBufferPointer { ptr in
+            emulator?.setMemoryBytes(ptr)
+        }
     }
 
     func switchSelectedController(controllerId: UInt8) {
@@ -259,17 +278,21 @@ class EmulatorCore: ObservableObject {
         }
     }
 
-    func startEmulator(gameUrl: URL) {
+    func startEmulator(gameUrl: URL) async {
         if let emulator = emulator {
             if gameUrl.startAccessingSecurityScopedResource() {
                 defer {
                     gameUrl.stopAccessingSecurityScopedResource()
                 }
 
-                setMemoryCard()
-
                 if !audioManager.isRunning {
                     audioManager.startAudio()
+                }
+
+                if let cloudService = cloudService, let bytes = await cloudService.getCard(memoryCard) {
+                    setMemoryBytes(bytes)
+                } else {
+                    emulator.setMemoryCard(memoryCard)
                 }
 
                 let gamePath = gameUrl.path
@@ -315,6 +338,13 @@ class EmulatorCore: ObservableObject {
                         let largeIntensity = Float(largeMotor) / 255.0
                         
                         gameController?.handleRumble(smallEngineIntensity: smallIntensity, largeEngineIntensity: largeIntensity)
+                    }
+
+                    if let bytes = emulator.getMemoryBytes(), let cloudService = cloudService {
+                        let bytesData = Data(bytes)
+                        Task {
+                            await cloudService.uploadCard(self.memoryCard, bytesData)
+                        }
                     }
                 }
             }

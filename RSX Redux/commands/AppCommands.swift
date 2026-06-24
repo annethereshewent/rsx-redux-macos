@@ -57,7 +57,9 @@ struct AppCommands: Commands {
                                     if url.pathExtension == "exe" {
                                         emulatorCore.startExe(exeUrl: url)
                                     } else {
-                                        emulatorCore.startEmulator(gameUrl: url)
+                                        Task {
+                                            await emulatorCore.startEmulator(gameUrl: url)
+                                        }
                                     }
                                 }
                             } catch {

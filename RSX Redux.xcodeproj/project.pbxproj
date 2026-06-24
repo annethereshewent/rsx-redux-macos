@@ -9,11 +9,15 @@
 /* Begin PBXBuildFile section */
 		E887F52D2FD006930046E8C5 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = E887F52C2FD006930046E8C5 /* Collections */; };
 		E8DEBFB72FD4BCBF00A28EEF /* PSXMacEmulator in Frameworks */ = {isa = PBXBuildFile; productRef = E8DEBFB62FD4BCBF00A28EEF /* PSXMacEmulator */; };
+		ED122488D4460E54D47AE05B /* Pods_RSX_Redux.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8D4355C1A825A28EF7B91F2 /* Pods_RSX_Redux.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0187FF2B12AEF1F3DAE095EC /* Pods-RSX Redux.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RSX Redux.debug.xcconfig"; path = "Target Support Files/Pods-RSX Redux/Pods-RSX Redux.debug.xcconfig"; sourceTree = "<group>"; };
+		B8D4355C1A825A28EF7B91F2 /* Pods_RSX_Redux.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RSX_Redux.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E887F4D72FCEDBDF0046E8C5 /* RSX Redux.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RSX Redux.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E887F5692FD141120046E8C5 /* entitlements.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = entitlements.plist; sourceTree = "<group>"; };
+		F8C71C8B8409321C7D480755 /* Pods-RSX Redux.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RSX Redux.release.xcconfig"; path = "Target Support Files/Pods-RSX Redux/Pods-RSX Redux.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -31,12 +35,22 @@
 			files = (
 				E887F52D2FD006930046E8C5 /* Collections in Frameworks */,
 				E8DEBFB72FD4BCBF00A28EEF /* PSXMacEmulator in Frameworks */,
+				ED122488D4460E54D47AE05B /* Pods_RSX_Redux.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		22780328A312EB31F3B010A0 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0187FF2B12AEF1F3DAE095EC /* Pods-RSX Redux.debug.xcconfig */,
+				F8C71C8B8409321C7D480755 /* Pods-RSX Redux.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		E887F4CE2FCEDBDF0046E8C5 = {
 			isa = PBXGroup;
 			children = (
@@ -44,6 +58,7 @@
 				E887F4D92FCEDBDF0046E8C5 /* RSX Redux */,
 				E887F52B2FD006930046E8C5 /* Frameworks */,
 				E887F4D82FCEDBDF0046E8C5 /* Products */,
+				22780328A312EB31F3B010A0 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,6 +73,7 @@
 		E887F52B2FD006930046E8C5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B8D4355C1A825A28EF7B91F2 /* Pods_RSX_Redux.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -69,10 +85,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E887F4E42FCEDBE00046E8C5 /* Build configuration list for PBXNativeTarget "RSX Redux" */;
 			buildPhases = (
+				931645EF6A6A9A0A13C74A36 /* [CP] Check Pods Manifest.lock */,
 				E887F4D32FCEDBDF0046E8C5 /* Sources */,
 				E887F4D42FCEDBDF0046E8C5 /* Frameworks */,
 				E887F4D52FCEDBDF0046E8C5 /* Resources */,
 				E887F50F2FCFC7930046E8C5 /* ShellScript */,
+				8A6D4B3F31EE5379636B9470 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -139,6 +157,49 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		8A6D4B3F31EE5379636B9470 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RSX Redux/Pods-RSX Redux-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RSX Redux/Pods-RSX Redux-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RSX Redux/Pods-RSX Redux-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		931645EF6A6A9A0A13C74A36 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-RSX Redux-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		E887F50F2FCFC7930046E8C5 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -293,6 +354,7 @@
 		};
 		E887F4E52FCEDBE00046E8C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0187FF2B12AEF1F3DAE095EC /* Pods-RSX Redux.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -307,6 +369,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "RSX-Redux-Info.plist";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -327,6 +390,7 @@
 		};
 		E887F4E62FCEDBE00046E8C5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F8C71C8B8409321C7D480755 /* Pods-RSX Redux.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -337,10 +401,21 @@
 				DEVELOPMENT_TEAM = 72VANXCC9C;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				ENABLE_USER_SELECTED_FILES = readonly;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "RSX-Redux-Info.plist";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
