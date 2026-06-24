@@ -78,6 +78,26 @@ class CloudService: ObservableObject {
         return nil
     }
 
+    func deleteCard(_ cardName: String) async -> Bool {
+        if let info = await getCardInfo(cardName) {
+            if info.files.count > 0 {
+                let fileId = info.files[0].id
+
+                let url = buildUrl(params: [], urlStr: "\(drivesUrl)/\(fileId)")
+
+                var request = URLRequest(url: url)
+
+                request.httpMethod = "DELETE"
+
+                if let _ = await self.cloudRequest(request: request) {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
     func uploadCard(_ cardName: String, _ data: Data) async {
         if let info = await getCardInfo(cardName) {
             var headers = [String:String]()

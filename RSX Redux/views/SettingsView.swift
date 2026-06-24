@@ -31,6 +31,7 @@ struct SettingsView: View {
     @State private var cardFound = false
     @State private var showFileDialog = false
     @State private var fileUpdateMessage: String? = nil
+    @State private var showConfirmDialog = false
     private let userDefaults = UserDefaults.standard
     private let mcdType = UTType(filenameExtension: "mcd", conformingTo: .data)
 
@@ -143,12 +144,31 @@ struct SettingsView: View {
                                         }
                                         .help("Download from cloud")
                                         Button() {
-                                            
+                                            showConfirmDialog = true
                                         } label: {
                                             Image(systemName: "trash")
                                                 .foregroundColor(.accentColor)
                                         }
                                         .help("Delete from cloud")
+                                    }
+                                    .confirmationDialog("Delete cloud save?", isPresented: $showConfirmDialog) {
+                                        Button("Delete") {
+                                            if let cloudService = emulatorCore.cloudService {
+                                                Task {
+                                                    let success = await cloudService.deleteCard(cloudCard)
+                                                    if success {
+                                                        fileUpdateMessage = "Deleted card successfully"
+                                                        updateCardLastUpdated()
+                                                        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+                                                            fileUpdateMessage = nil
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            showConfirmDialog = false
+                                        }
+                                    } message: {
+                                        Text("This will permanently delete your card from the cloud. Are you sure you want to continue?")
                                     }
                                 }
                             }
