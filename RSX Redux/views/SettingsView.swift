@@ -8,6 +8,7 @@
 import SwiftUI
 import GoogleSignInSwift
 import GoogleSignIn
+import UniformTypeIdentifiers
 
 enum ControllerMode: Codable {
     case auto
@@ -28,184 +29,220 @@ struct SettingsView: View {
     @State private var cloudCard = "memory_card1.mcd"
     @State private var cardLastUpdated = ""
     @State private var cardFound = false
+    @State private var showFileDialog = false
+    @State private var fileUpdateMessage: String? = nil
     private let userDefaults = UserDefaults.standard
+    private let mcdType = UTType(filenameExtension: "mcd", conformingTo: .data)
 
     var body: some View {
         if !showKeyboardBindings {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Settings")
-                        .font(.largeTitle)
-                        .bold()
-                        .padding(.bottom, 24)
+            ZStack {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Settings")
+                            .font(.largeTitle)
+                            .bold()
+                            .padding(.bottom, 24)
 
-                    settingsSection("Controller") {
-                        settingsRow("Selected Controller") {
-                            Picker("", selection: $selectedController) {
-                                Text("Port 1").tag(UInt8(0))
-                                Text("Port 2").tag(UInt8(1))
-                            }
-                            .pickerStyle(.radioGroup)
-                            .horizontalRadioGroupLayout()
-                        }
-                        Divider()
-                        settingsRow("Controller Mode") {
-                            Picker("", selection: $controllerMode) {
-                                Text("Auto").tag(ControllerMode.auto)
-                                Text("Digital").tag(ControllerMode.digital)
-                                Text("Analog").tag(ControllerMode.analog)
-                            }
-                            .frame(width: 120)
-                        }
-                        Divider()
-                        settingsRow("Vibration") {
-                            Picker("", selection: $vibration) {
-                                Text("On").tag(true)
-                                Text("Off").tag(false)
-                            }
-                            .pickerStyle(.radioGroup)
-                            .horizontalRadioGroupLayout()
-                        }
-                        Divider()
-                        settingsRow("Keyboard Bindings") {
-                            Button("Configure…") {
-                                showKeyboardBindings = true
-                            }
-                        }
-                    }
-
-                    settingsSection("Audio") {
-                        settingsRow("Playback") {
-                            Picker("", selection: $playAudio) {
-                                Text("On").tag(true)
-                                Text("Off").tag(false)
-                            }
-                            .pickerStyle(.radioGroup)
-                            .horizontalRadioGroupLayout()
-                        }
-                    }
-
-                    settingsSection("System") {
-                        settingsRow("Selected Memory Card") {
-                            Picker("", selection: $memoryCard) {
-                                Text("Memory Card 1").tag("memory_card1.mcd")
-                                Text("Memory Card 2").tag("memory_card2.mcd")
-                                Text("Memory Card 3").tag("memory_card3.mcd")
-                                Text("Memory Card 4").tag("memory_card4.mcd")
-                                Text("Memory Card 5").tag("memory_card5.mcd")
-                            }
-                            .frame(width: 160)
-                        }
-                    }
-
-                    settingsSection("Cloud Saves") {
-                        settingsRow("Google Account") {
-                            if let user = user {
-                                Button("Sign out of \(user.profile?.email ?? "user account")") {
-                                    handleSignOut()
+                        settingsSection("Controller") {
+                            settingsRow("Selected Controller") {
+                                Picker("", selection: $selectedController) {
+                                    Text("Port 1").tag(UInt8(0))
+                                    Text("Port 2").tag(UInt8(1))
                                 }
-                            } else {
-                                Button("Sign in") {
-                                    handleSignInButton()
-                                }
+                                .pickerStyle(.radioGroup)
+                                .horizontalRadioGroupLayout()
                             }
-                        }
-                        if let _ = user {
                             Divider()
-                            settingsRow("Manage memory card")  {
-                                Picker("", selection: $cloudCard) {
+                            settingsRow("Controller Mode") {
+                                Picker("", selection: $controllerMode) {
+                                    Text("Auto").tag(ControllerMode.auto)
+                                    Text("Digital").tag(ControllerMode.digital)
+                                    Text("Analog").tag(ControllerMode.analog)
+                                }
+                                .frame(width: 120)
+                            }
+                            Divider()
+                            settingsRow("Vibration") {
+                                Picker("", selection: $vibration) {
+                                    Text("On").tag(true)
+                                    Text("Off").tag(false)
+                                }
+                                .pickerStyle(.radioGroup)
+                                .horizontalRadioGroupLayout()
+                            }
+                            Divider()
+                            settingsRow("Keyboard Bindings") {
+                                Button("Configure…") {
+                                    showKeyboardBindings = true
+                                }
+                            }
+                        }
+
+                        settingsSection("Audio") {
+                            settingsRow("Playback") {
+                                Picker("", selection: $playAudio) {
+                                    Text("On").tag(true)
+                                    Text("Off").tag(false)
+                                }
+                                .pickerStyle(.radioGroup)
+                                .horizontalRadioGroupLayout()
+                            }
+                        }
+
+                        settingsSection("System") {
+                            settingsRow("Selected Memory Card") {
+                                Picker("", selection: $memoryCard) {
                                     Text("Memory Card 1").tag("memory_card1.mcd")
                                     Text("Memory Card 2").tag("memory_card2.mcd")
                                     Text("Memory Card 3").tag("memory_card3.mcd")
                                     Text("Memory Card 4").tag("memory_card4.mcd")
                                     Text("Memory Card 5").tag("memory_card5.mcd")
                                 }
+                                .frame(width: 160)
                             }
-                            if cardFound {
-                                settingsRow("Cloud: \(cardLastUpdated)") {
-                                    Button() {
+                        }
 
-                                    } label: {
-                                        Image(systemName: "icloud.and.arrow.up")
-                                            .foregroundColor(.accentColor)
+                        settingsSection("Cloud Saves") {
+                            settingsRow("Google Account") {
+                                if let user = user {
+                                    Button("Sign out of \(user.profile?.email ?? "user account")") {
+                                        handleSignOut()
                                     }
-                                    .help("Upload to cloud")
-                                    Button() {
-
-                                    } label: {
-                                        Image(systemName: "icloud.and.arrow.down")
-                                            .foregroundColor(.accentColor)
+                                } else {
+                                    Button("Sign in") {
+                                        handleSignInButton()
                                     }
-                                    .help("Download from cloud")
-                                    Button() {
-
-                                    } label: {
-                                        Image(systemName: "trash")
-                                            .foregroundColor(.accentColor)
+                                }
+                            }
+                            if let _ = user {
+                                Divider()
+                                settingsRow("Manage memory card")  {
+                                    Picker("", selection: $cloudCard) {
+                                        Text("Memory Card 1").tag("memory_card1.mcd")
+                                        Text("Memory Card 2").tag("memory_card2.mcd")
+                                        Text("Memory Card 3").tag("memory_card3.mcd")
+                                        Text("Memory Card 4").tag("memory_card4.mcd")
+                                        Text("Memory Card 5").tag("memory_card5.mcd")
                                     }
-                                    .help("Delete from cloud")
+                                }
+                                if cardFound {
+                                    settingsRow("Cloud: \(cardLastUpdated)") {
+                                        Button() {
+                                            showFileDialog = true
+                                        } label: {
+                                            Image(systemName: "icloud.and.arrow.up")
+                                                .foregroundColor(.accentColor)
+                                        }
+                                        .help("Upload to cloud")
+                                        Button() {
+                                            
+                                        } label: {
+                                            Image(systemName: "icloud.and.arrow.down")
+                                                .foregroundColor(.accentColor)
+                                        }
+                                        .help("Download from cloud")
+                                        Button() {
+                                            
+                                        } label: {
+                                            Image(systemName: "trash")
+                                                .foregroundColor(.accentColor)
+                                        }
+                                        .help("Delete from cloud")
+                                    }
                                 }
                             }
                         }
+                        .onAppear {
+                            updateCardLastUpdated()
+                        }
+                        .onChange(of: cloudCard) {
+                            updateCardLastUpdated()
+                        }
                     }
-                    .onAppear {
-                        updateCardLastUpdated()
+                    .onChange(of: selectedController) {
+                        userDefaults.set(selectedController, forKey: "selectedController")
+                        emulatorCore.switchSelectedController(controllerId: selectedController)
                     }
-                    .onChange(of: cloudCard) {
-                        updateCardLastUpdated()
+                    .onChange(of: vibration) {
+                        userDefaults.set(vibration, forKey: "vibration")
+                        emulatorCore.setVibration(vibration)
                     }
-                    
-                }
-                .onChange(of: selectedController) {
-                    userDefaults.set(selectedController, forKey: "selectedController")
-                    emulatorCore.switchSelectedController(controllerId: selectedController)
-                }
-                .onChange(of: vibration) {
-                    userDefaults.set(vibration, forKey: "vibration")
-                    emulatorCore.setVibration(vibration)
-                }
-                .onChange(of: controllerMode) {
-                    do {
-                        let encoded = try JSONEncoder().encode(controllerMode)
-                        userDefaults.set(encoded, forKey: "controllerMode")
-                    } catch {
-                        print(error)
-                    }
-                    emulatorCore.setControllerMode(controllerMode)
-                }
-                .onChange(of: playAudio) {
-                    userDefaults.set(playAudio, forKey: "playAudio")
-                    emulatorCore.switchAudio(playAudio)
-                }
-                .onChange(of: memoryCard) {
-                    userDefaults.set(memoryCard, forKey: "memoryCard")
-
-                    emulatorCore.setMemoryCard(memoryCard)
-                }
-                .onAppear {
-                    if userDefaults.object(forKey: "selectedController") != nil {
-                        self.selectedController = UInt8(userDefaults.integer(forKey: "selectedController"))
-                    }
-
-                    if userDefaults.object(forKey: "vibration") != nil {
-                        vibration = userDefaults.bool(forKey: "vibration")
-                    }
-                    if let memoryCard = userDefaults.string(forKey: "memoryCard") {
-                        self.memoryCard = memoryCard
-                    }
-                    if userDefaults.object(forKey: "playAudio") != nil {
-                        playAudio = userDefaults.bool(forKey: "playAudio")
-                    }
-                    if let controllerModeData = userDefaults.object(forKey: "controllerMode") {
+                    .onChange(of: controllerMode) {
                         do {
-                            let controllerMode = try JSONDecoder().decode(ControllerMode.self, from: controllerModeData as! Data)
-                            self.controllerMode = controllerMode
+                            let encoded = try JSONEncoder().encode(controllerMode)
+                            userDefaults.set(encoded, forKey: "controllerMode")
                         } catch {
                             print(error)
                         }
+                        emulatorCore.setControllerMode(controllerMode)
                     }
+                    .onChange(of: playAudio) {
+                        userDefaults.set(playAudio, forKey: "playAudio")
+                        emulatorCore.switchAudio(playAudio)
+                    }
+                    .onChange(of: memoryCard) {
+                        userDefaults.set(memoryCard, forKey: "memoryCard")
+
+                        emulatorCore.setMemoryCard(memoryCard)
+                    }
+                    .onAppear {
+                        if userDefaults.object(forKey: "selectedController") != nil {
+                            self.selectedController = UInt8(userDefaults.integer(forKey: "selectedController"))
+                        }
+
+                        if userDefaults.object(forKey: "vibration") != nil {
+                            vibration = userDefaults.bool(forKey: "vibration")
+                        }
+                        if let memoryCard = userDefaults.string(forKey: "memoryCard") {
+                            self.memoryCard = memoryCard
+                        }
+                        if userDefaults.object(forKey: "playAudio") != nil {
+                            playAudio = userDefaults.bool(forKey: "playAudio")
+                        }
+                        if let controllerModeData = userDefaults.object(forKey: "controllerMode") {
+                            do {
+                                let controllerMode = try JSONDecoder().decode(ControllerMode.self, from: controllerModeData as! Data)
+                                self.controllerMode = controllerMode
+                            } catch {
+                                print(error)
+                            }
+                        }
+                    }
+                    .fileImporter(isPresented: $showFileDialog, allowedContentTypes: [mcdType!]) { result in
+                        fileUpdateMessage = nil
+                        if let url = try? result.get() {
+                            if url.startAccessingSecurityScopedResource() {
+                                defer {
+                                    url.stopAccessingSecurityScopedResource()
+                                }
+                                if let cloudService = emulatorCore.cloudService {
+                                    if let data = try? Data(contentsOf: url) {
+                                        Task {
+                                            await cloudService.uploadCard(cloudCard, data)
+                                            fileUpdateMessage = "Successfully uploaded card"
+                                            Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+                                                fileUpdateMessage = nil
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        showFileDialog = false
+
+                    }
+                    .padding(32)
                 }
-                .padding(32)
+                if let fileUpdateMessage = fileUpdateMessage {
+                    Text(fileUpdateMessage)
+                        .font(.system(size: 24))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                        .padding(.bottom, 24)
+                }
             }
         } else {
             VStack {
