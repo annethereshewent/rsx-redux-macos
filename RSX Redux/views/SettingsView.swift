@@ -16,6 +16,20 @@ enum ControllerMode: Codable {
     case analog
 }
 
+struct MemoryCardFile: FileDocument {
+    static var readableContentTypes: [UTType] = []
+    var data: Data
+
+    init(data: Data) { self.data = data }
+    init(configuration: ReadConfiguration) throws {
+        data = configuration.file.regularFileContents ?? Data()
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: data)
+    }
+}
+
 struct SettingsView: View {
     @EnvironmentObject private var emulatorCore: EmulatorCore
     @Binding var currentGame: Game?
@@ -30,8 +44,10 @@ struct SettingsView: View {
     @State private var cardLastUpdated = ""
     @State private var cardFound = false
     @State private var showFileDialog = false
+    @State private var showFileExportDialog = false
     @State private var fileUpdateMessage: String? = nil
     @State private var showConfirmDialog = false
+    @State private var downloadedData = Data()
     private let userDefaults = UserDefaults.standard
     private let mcdType = UTType(filenameExtension: "mcd", conformingTo: .data)
 
@@ -137,7 +153,14 @@ struct SettingsView: View {
                                         }
                                         .help("Upload to cloud")
                                         Button() {
-                                            
+                                            if let cloudService = emulatorCore.cloudService {
+                                                Task {
+                                                    if let data = await cloudService.getCard(cloudCard) {
+                                                        downloadedData = data
+                                                        showFileExportDialog = true
+                                                    }
+                                                }
+                                            }
                                         } label: {
                                             Image(systemName: "icloud.and.arrow.down")
                                                 .foregroundColor(.accentColor)
@@ -157,7 +180,7 @@ struct SettingsView: View {
                                                 Task {
                                                     let success = await cloudService.deleteCard(cloudCard)
                                                     if success {
-                                                        fileUpdateMessage = "Deleted card successfully"
+                                                        fileUpdateMessage = "Successfully deleted card"
                                                         updateCardLastUpdated()
                                                         Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
                                                             fileUpdateMessage = nil
@@ -252,6 +275,18 @@ struct SettingsView: View {
 
                         showFileDialog = false
 
+                    }
+                    .fileExporter(
+                        isPresented: $showFileExportDialog,
+                        document: MemoryCardFile(data: downloadedData),
+                        contentType: mcdType!,
+                        defaultFilename: cloudCard
+                    ) { _ in
+                        showFileExportDialog = false
+                        fileUpdateMessage = "Successfully downloaded card"
+                        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+                            fileUpdateMessage = nil
+                        }
                     }
                     .padding(32)
                 }
