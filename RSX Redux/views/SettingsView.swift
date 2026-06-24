@@ -182,6 +182,29 @@ struct SettingsView: View {
 
                     emulatorCore.setMemoryCard(memoryCard)
                 }
+                .onAppear {
+                    if userDefaults.object(forKey: "selectedController") != nil {
+                        self.selectedController = UInt8(userDefaults.integer(forKey: "selectedController"))
+                    }
+
+                    if userDefaults.object(forKey: "vibration") != nil {
+                        vibration = userDefaults.bool(forKey: "vibration")
+                    }
+                    if let memoryCard = userDefaults.string(forKey: "memoryCard") {
+                        self.memoryCard = memoryCard
+                    }
+                    if userDefaults.object(forKey: "playAudio") != nil {
+                        playAudio = userDefaults.bool(forKey: "playAudio")
+                    }
+                    if let controllerModeData = userDefaults.object(forKey: "controllerMode") {
+                        do {
+                            let controllerMode = try JSONDecoder().decode(ControllerMode.self, from: controllerModeData as! Data)
+                            self.controllerMode = controllerMode
+                        } catch {
+                            print(error)
+                        }
+                    }
+                }
                 .padding(32)
             }
         } else {

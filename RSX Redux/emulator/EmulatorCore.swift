@@ -292,7 +292,6 @@ class EmulatorCore: ObservableObject {
                 if let cloudService = cloudService, let bytes = await cloudService.getCard(memoryCard) {
                     setMemoryBytes(bytes)
                 } else {
-                    print("using offline memory card")
                     emulator.setMemoryCard(memoryCard)
                 }
 
