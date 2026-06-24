@@ -95,7 +95,6 @@ struct SettingsView: View {
                                 Text("Memory Card 5").tag("memory_card5.mcd")
                             }
                             .frame(width: 160)
-                            .disabled(currentGame != nil)
                         }
                     }
 
@@ -155,6 +154,33 @@ struct SettingsView: View {
                     .onChange(of: cloudCard) {
                         updateCardLastUpdated()
                     }
+                    
+                }
+                .onChange(of: selectedController) {
+                    userDefaults.set(selectedController, forKey: "selectedController")
+                    emulatorCore.switchSelectedController(controllerId: selectedController)
+                }
+                .onChange(of: vibration) {
+                    userDefaults.set(vibration, forKey: "vibration")
+                    emulatorCore.setVibration(vibration)
+                }
+                .onChange(of: controllerMode) {
+                    do {
+                        let encoded = try JSONEncoder().encode(controllerMode)
+                        userDefaults.set(encoded, forKey: "controllerMode")
+                    } catch {
+                        print(error)
+                    }
+                    emulatorCore.setControllerMode(controllerMode)
+                }
+                .onChange(of: playAudio) {
+                    userDefaults.set(playAudio, forKey: "playAudio")
+                    emulatorCore.switchAudio(playAudio)
+                }
+                .onChange(of: memoryCard) {
+                    userDefaults.set(memoryCard, forKey: "memoryCard")
+
+                    emulatorCore.setMemoryCard(memoryCard)
                 }
                 .padding(32)
             }

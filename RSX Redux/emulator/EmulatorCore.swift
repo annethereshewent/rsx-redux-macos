@@ -212,12 +212,20 @@ class EmulatorCore: ObservableObject {
 
     func setMemoryCard(_ card: String) {
         memoryCard = card
+
+        if let cloudService = cloudService {
+            Task {
+                if let data = await cloudService.getCard(card) {
+                    setMemoryBytes(data)
+                }
+            }
+        } else {
+            setMemoryCard()
+        }
     }
 
     func setMemoryBytes(_ bytes: Data) {
         let bytesArr = Array(bytes)
-
-        print("yeah!!!!!!!!")
 
         bytesArr.withUnsafeBufferPointer { ptr in
             emulator?.setMemoryBytes(ptr)
@@ -284,6 +292,7 @@ class EmulatorCore: ObservableObject {
                 if let cloudService = cloudService, let bytes = await cloudService.getCard(memoryCard) {
                     setMemoryBytes(bytes)
                 } else {
+                    print("using offline memory card")
                     emulator.setMemoryCard(memoryCard)
                 }
 
@@ -330,6 +339,13 @@ class EmulatorCore: ObservableObject {
                         let largeIntensity = Float(largeMotor) / 255.0
                         
                         gameController?.handleRumble(smallEngineIntensity: smallIntensity, largeEngineIntensity: largeIntensity)
+                    }
+
+                    if let bytes = emulator.getMemoryBytes(), let cloudService = cloudService {
+                        let bytesData = Data(bytes)
+                        Task {
+                            await cloudService.uploadCard(self.memoryCard, bytesData)
+                        }
                     }
                 }
             }

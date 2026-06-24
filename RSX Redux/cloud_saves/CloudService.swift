@@ -9,6 +9,8 @@ import Foundation
 import Combine
 import GoogleSignIn
 
+let MEMORY_CARD_CAPACITY = 0x20000
+
 
 class CloudService: ObservableObject {
     var user: GIDGoogleUser
@@ -52,7 +54,6 @@ class CloudService: ObservableObject {
     }
 
     func getCard(_ cardName: String) async -> Data? {
-        print("getting card \(cardName)")
         if let info = await getCardInfo(cardName) {
             if info.files.count > 0 {
                 let fileId = info.files[0].id
@@ -64,10 +65,78 @@ class CloudService: ObservableObject {
                 let request = URLRequest(url: url)
 
                 return await self.cloudRequest(request: request)
+            } else {
+                // create the card if it doesn't exist
+                let data = Data(Array(repeating: 0xff, count: MEMORY_CARD_CAPACITY))
+                await uploadCard(cardName, data)
+
+                return data
             }
         }
 
+        // if we got to this point, then the cloud service isn't working properly and thus we can just fall back to nil
         return nil
+    }
+
+    func uploadCard(_ cardName: String, _ data: Data) async {
+        if let info = await getCardInfo(cardName) {
+            var headers = [String:String]()
+
+            headers["Content-Type"] = "application/octet-stream"
+            headers["Content-Length"] = "\(data.count)"
+
+            if info.files.count > 0 {
+                let fileId = info.files[0].id
+                let urlStr = "\(googleBase)/upload/drive/v3/files/\(fileId)"
+
+                let url = buildUrl(params: [URLQueryItem(name: "uploadType", value: "media")], urlStr: urlStr)
+
+                var request = URLRequest(url: url)
+
+                request.httpMethod = "PATCH"
+
+                request.httpBody = data
+
+                let _ = await self.cloudRequest(request: request)
+
+                return
+            }
+
+            // save doesn't exist, create it
+            let params = [URLQueryItem(name: "uploadType", value: "media"), URLQueryItem(name: "fields", value: "id,name,parents")]
+            let urlStr = "\(googleBase)/upload/drive/v3/files"
+            let url = buildUrl(params: params, urlStr: urlStr)
+
+            var request = URLRequest(url: url)
+
+            request.httpMethod = "POST"
+
+            request.httpBody = data
+
+            if let data = await self.cloudRequest(request: request, headers: headers) {
+                do {
+                    let fileResponse = try jsonDecoder.decode(File.self, from: data)
+                    // finally move the file to correct saves folder
+                    let params = [URLQueryItem(name: "uploadType", value: "media"), URLQueryItem(name: "addParents", value: self.rsxFolderId)]
+
+                    let fileId = fileResponse.id
+                    let urlStr = "\(drivesUrl)/\(fileId)"
+
+                    let url = buildUrl(params: params, urlStr: urlStr)
+
+                    var request = URLRequest(url: url)
+
+                    request.httpMethod = "PATCH"
+
+                    request.httpBody = try JSONEncoder().encode(FileJSON(name: cardName, mimeType: "application/octet-stream"))
+
+                    let _ = await self.cloudRequest(request: request)
+                } catch {
+                    print(error)
+                }
+
+            }
+        }
     }
 
     private func checkForFolder() async -> String? {
