@@ -14,7 +14,6 @@ import GoogleSignIn
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var emulatorCore: EmulatorCore
-    @Binding var cloudService: CloudService?
     @Binding var currentDiscUrl: URL?
     @Binding var currentBiosUrl: URL?
     @Binding var initialize: Bool
@@ -197,14 +196,14 @@ struct ContentView: View {
                     if let signedInUser = user {
                         self.user = signedInUser
 
-                        cloudService = CloudService(user: signedInUser)
+                        emulatorCore.cloudService = CloudService(user: signedInUser)
 
                         self.user?.refreshTokensIfNeeded { user, error in
                             guard error == nil else { return }
                             guard let user = user else { return }
 
                             self.user = user
-                            cloudService?.user = user
+                            emulatorCore.cloudService?.user = user
                         }
                     }
                 }
@@ -270,14 +269,18 @@ struct ContentView: View {
                                         if let biosUrl = currentBiosUrl {
                                             emulatorCore.initialize()
                                             emulatorCore.loadBios(biosUrl: biosUrl)
-                                            emulatorCore.startEmulator(gameUrl: url)
+                                            Task {
+                                                await emulatorCore.startEmulator(gameUrl: url)
+                                            }
                                         }
                                     }
                                 } else {
                                     if let biosUrl = currentBiosUrl {
                                         emulatorCore.initialize()
                                         emulatorCore.loadBios(biosUrl: biosUrl)
-                                        emulatorCore.startEmulator(gameUrl: url)
+                                        Task {
+                                            await emulatorCore.startEmulator(gameUrl: url)
+                                        }
                                     }
                                 }
                             }

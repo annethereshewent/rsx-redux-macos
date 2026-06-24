@@ -51,6 +51,25 @@ class CloudService: ObservableObject {
         return nil
     }
 
+    func getCard(_ cardName: String) async -> Data? {
+        print("getting card \(cardName)")
+        if let info = await getCardInfo(cardName) {
+            if info.files.count > 0 {
+                let fileId = info.files[0].id
+
+                let params = [URLQueryItem(name: "alt", value: "media")]
+
+                let url = buildUrl(params: params, urlStr: "\(drivesUrl)/\(fileId)")
+
+                let request = URLRequest(url: url)
+
+                return await self.cloudRequest(request: request)
+            }
+        }
+
+        return nil
+    }
+
     private func checkForFolder() async -> String? {
         if let rsxFolderId = self.rsxFolderId {
             return rsxFolderId

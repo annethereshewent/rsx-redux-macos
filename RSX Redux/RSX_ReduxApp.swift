@@ -17,7 +17,6 @@ enum FileType {
 @main
 struct RSX_ReduxApp: App {
     @StateObject private var emulatorCore = EmulatorCore()
-    @State private var cloudService: CloudService? = nil
     @State private var showDialog = false
     @State private var currentDiscUrl: URL?
     @State private var currentBiosUrl: URL?
@@ -35,7 +34,6 @@ struct RSX_ReduxApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(
-                cloudService: $cloudService,
                 currentDiscUrl: $currentDiscUrl,
                 currentBiosUrl: $currentBiosUrl,
                 initialize: $initialize,
@@ -103,7 +101,6 @@ struct RSX_ReduxApp: App {
 
         Settings {
             SettingsView(
-                cloudService: $cloudService,
                 currentGame: $currentGame,
                 user: $user
             )

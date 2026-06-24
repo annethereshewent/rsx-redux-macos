@@ -17,7 +17,6 @@ enum ControllerMode: Codable {
 
 struct SettingsView: View {
     @EnvironmentObject private var emulatorCore: EmulatorCore
-    @Binding var cloudService: CloudService?
     @Binding var currentGame: Game?
     @Binding var user: GIDGoogleUser?
     @State private var selectedController: UInt8 = 0
@@ -172,7 +171,7 @@ struct SettingsView: View {
 
     func updateCardLastUpdated() {
         cardFound = false
-        if let cloudService = cloudService {
+        if let cloudService = emulatorCore.cloudService {
             Task {
                 if let info = await cloudService.getCardInfo(cloudCard) {
                     if info.files.count > 0, let date = info.files[0].modifiedTime {
