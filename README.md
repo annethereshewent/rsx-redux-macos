@@ -22,11 +22,8 @@ This emulator has the following features:
 * Keyboard support with mappable controls
 * Vibration support with compatible controllers
 * Support for multiple memory cards (up to 5)
-
-Coming soon:
-
 * Cloud saves
-   
+
 ## Controls
 
 Controls are mappable under settings for the keyboard. For controllers like Dualshock 4 and Dualsense, mappings should be exactly the same as the PSX. for controllers like the Xbox 360, they translate very similar, such as:
