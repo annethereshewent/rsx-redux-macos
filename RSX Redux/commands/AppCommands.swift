@@ -37,33 +37,22 @@ struct AppCommands: Commands {
                     Button(game.gameName) {
                         if let biosUrl = currentBiosUrl {
                             var stale = false
-                            do {
-                                let url = try URL(
-                                    resolvingBookmarkData: game.bookmark,
-                                    options: [.withSecurityScope],
-                                    relativeTo: nil,
-                                    bookmarkDataIsStale: &stale
-                                )
+                            game.lastPlayed = Date()
 
-                                game.lastPlayed = Date()
+                            try? context.save()
 
-                                try? context.save()
+                            currentGame = game
 
-                                currentGame = game
-
-                                emulatorCore.stopEmulatorThen {
-                                    emulatorCore.initialize()
-                                    emulatorCore.loadBios(biosUrl: biosUrl)
-                                    if url.pathExtension == "exe" {
-                                        emulatorCore.startExe(exeUrl: url)
-                                    } else {
-                                        Task {
-                                            await emulatorCore.startEmulator(gameUrl: url)
-                                        }
+                            emulatorCore.stopEmulatorThen {
+                                emulatorCore.initialize()
+                                emulatorCore.loadBios(biosUrl: biosUrl)
+                                if game.gameUrl.pathExtension == "exe" {
+                                    emulatorCore.startExe(exeUrl: game.gameUrl)
+                                } else {
+                                    Task {
+                                        await emulatorCore.startEmulator(gameUrl: game.gameUrl)
                                     }
                                 }
-                            } catch {
-                                print(error)
                             }
                         }
                     }

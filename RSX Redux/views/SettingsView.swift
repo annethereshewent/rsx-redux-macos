@@ -255,18 +255,13 @@ struct SettingsView: View {
                     .fileImporter(isPresented: $showFileDialog, allowedContentTypes: [mcdType!]) { result in
                         fileUpdateMessage = nil
                         if let url = try? result.get() {
-                            if url.startAccessingSecurityScopedResource() {
-                                defer {
-                                    url.stopAccessingSecurityScopedResource()
-                                }
-                                if let cloudService = emulatorCore.cloudService {
-                                    if let data = try? Data(contentsOf: url) {
-                                        Task {
-                                            await cloudService.uploadCard(cloudCard, data)
-                                            fileUpdateMessage = "Successfully uploaded card"
-                                            Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
-                                                fileUpdateMessage = nil
-                                            }
+                            if let cloudService = emulatorCore.cloudService {
+                                if let data = try? Data(contentsOf: url) {
+                                    Task {
+                                        await cloudService.uploadCard(cloudCard, data)
+                                        fileUpdateMessage = "Successfully uploaded card"
+                                        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+                                            fileUpdateMessage = nil
                                         }
                                     }
                                 }

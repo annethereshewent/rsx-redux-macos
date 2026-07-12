@@ -178,19 +178,13 @@ class EmulatorCore: ObservableObject {
 
     func startExe(exeUrl: URL) {
         if let emulator = emulator {
-            if exeUrl.startAccessingSecurityScopedResource() {
-                defer {
-                    exeUrl.stopAccessingSecurityScopedResource()
-                }
-
-                if !audioManager.isRunning {
-                    audioManager.startAudio()
-                }
-
-                emulator.startExe(exeUrl.path)
-
-                mainLoop()
+            if !audioManager.isRunning {
+                audioManager.startAudio()
             }
+
+            emulator.startExe(exeUrl.path)
+
+            mainLoop()
         }
     }
 
@@ -199,15 +193,7 @@ class EmulatorCore: ObservableObject {
     }
 
     func closeShell(url: URL) {
-        if url.startAccessingSecurityScopedResource() {
-            defer {
-                url.stopAccessingSecurityScopedResource()
-            }
-
-            emulator?.closeShell(url.path)
-            
-        }
-
+        emulator?.closeShell(url.path)
     }
 
     func setMemoryCard(_ card: String) {
@@ -280,27 +266,21 @@ class EmulatorCore: ObservableObject {
 
     func startEmulator(gameUrl: URL) async {
         if let emulator = emulator {
-            if gameUrl.startAccessingSecurityScopedResource() {
-                defer {
-                    gameUrl.stopAccessingSecurityScopedResource()
-                }
-
-                if !audioManager.isRunning {
-                    audioManager.startAudio()
-                }
-
-                if let cloudService = cloudService, let bytes = await cloudService.getCard(memoryCard) {
-                    setMemoryBytes(bytes)
-                } else {
-                    emulator.setMemoryCard(memoryCard)
-                }
-
-                let gamePath = gameUrl.path
-                self.gameUrl = gameUrl
-                emulator.loadRom(gamePath)
-
-                mainLoop()
+            if !audioManager.isRunning {
+                audioManager.startAudio()
             }
+
+            if let cloudService = cloudService, let bytes = await cloudService.getCard(memoryCard) {
+                setMemoryBytes(bytes)
+            } else {
+                emulator.setMemoryCard(memoryCard)
+            }
+
+            let gamePath = gameUrl.path
+            self.gameUrl = gameUrl
+            emulator.loadRom(gamePath)
+
+            mainLoop()
         }
     }
 
@@ -392,23 +372,19 @@ class EmulatorCore: ObservableObject {
     func loadQuickState() {
         if let url = saveStateUrl ?? getQuickStateUrl() {
             stopEmulatorThen {
-                if self.gameUrl?.startAccessingSecurityScopedResource() ?? false {
-                    defer {
-                        self.gameUrl?.stopAccessingSecurityScopedResource()
+                do {
+                    let data = try Data(contentsOf: url)
+
+                    Array(data).withUnsafeBufferPointer { ptr in
+                        self.emulator?.loadState(ptr)
+
+                        self.setMemoryCard(self.memoryCard)
+
+                        self.mainLoop()
                     }
-                    do {
-                        let data = try Data(contentsOf: url)
 
-
-                        Array(data).withUnsafeBufferPointer { ptr in
-                            self.emulator?.loadState(ptr)
-
-                            self.mainLoop()
-                        }
-
-                    } catch {
-                        print(error)
-                    }
+                } catch {
+                    print(error)
                 }
             }
         }
@@ -416,16 +392,10 @@ class EmulatorCore: ObservableObject {
 
     func loadState(data: Data) {
         stopEmulatorThen {
-            if self.gameUrl?.startAccessingSecurityScopedResource() ?? false {
-                defer {
-                    self.gameUrl?.stopAccessingSecurityScopedResource()
-                }
-
-                Array(data).withUnsafeBufferPointer { ptr in
-                    self.emulator?.loadState(ptr)
-
-                    self.mainLoop()
-                }
+            Array(data).withUnsafeBufferPointer { ptr in
+                self.emulator?.loadState(ptr)
+                self.setMemoryCard(self.memoryCard)
+                self.mainLoop()
             }
         }
     }
