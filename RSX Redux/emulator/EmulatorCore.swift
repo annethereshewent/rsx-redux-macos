@@ -378,6 +378,8 @@ class EmulatorCore: ObservableObject {
                     Array(data).withUnsafeBufferPointer { ptr in
                         self.emulator?.loadState(ptr)
 
+                        self.setMemoryCard(self.memoryCard)
+
                         self.mainLoop()
                     }
 
@@ -392,6 +394,7 @@ class EmulatorCore: ObservableObject {
         stopEmulatorThen {
             Array(data).withUnsafeBufferPointer { ptr in
                 self.emulator?.loadState(ptr)
+                self.setMemoryCard(self.memoryCard)
                 self.mainLoop()
             }
         }
