@@ -31,6 +31,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var context
 
     let binType = UTType(filenameExtension: "bin", conformingTo: .data)
+    let cueType = UTType(filenameExtension: "cue", conformingTo: .data)
     let exeType = UTType(filenameExtension: "exe", conformingTo: .data)
 
     private func addControllerEventListeners(_ controller: GCController?) {
@@ -208,7 +209,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!, exeType!] ) { result in
+            .fileImporter(isPresented: $showDialog, allowedContentTypes: [binType!, exeType!, cueType!] ) { result in
                 if let url = try? result.get() {
                     switch fileType {
                     case .bios:
@@ -218,13 +219,9 @@ struct ContentView: View {
                             appropriateFor: nil,
                             create: true
                         ) {
-                            if url.startAccessingSecurityScopedResource() {
-                                defer { url.stopAccessingSecurityScopedResource() }
-                                if let data = try? Data(contentsOf: url) {
-                                    currentBiosUrl = storeBios(location: location, data: data)
-                                }
+                            if let data = try? Data(contentsOf: url) {
+                                currentBiosUrl = storeBios(location: location, data: data)
                             }
-
                         }
                         break
                     case .disc:
@@ -233,30 +230,22 @@ struct ContentView: View {
                         if let index = games.firstIndex(where: { $0.gameName == gameName }) {
                             currentGame = games[index]
 
+                            if currentGame!.gameUrl.pathExtension != url.pathExtension {
+                                currentGame!.gameUrl = url
+                            }
+
                             currentGame!.lastPlayed = Date()
 
                             try? context.save()
                         } else {
-                            do {
-                                guard url.startAccessingSecurityScopedResource() else { return }
+                            currentGame = Game(
+                                gameName: gameName,
+                                gameUrl: url,
+                                saveStates: [],
+                                lastPlayed: Date()
+                            )
 
-                                let bookmark = try url.bookmarkData(
-                                    options: [.withSecurityScope],
-                                    includingResourceValuesForKeys: nil,
-                                    relativeTo: nil
-                                )
-
-                                currentGame = Game(
-                                    gameName: gameName,
-                                    bookmark: bookmark,
-                                    saveStates: [],
-                                    lastPlayed: Date()
-                                )
-
-                                context.insert(currentGame!)
-                            } catch {
-                                print(error)
-                            }
+                            context.insert(currentGame!)
                         }
                         currentDiscUrl = url
 
